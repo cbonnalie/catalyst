@@ -1,0 +1,28 @@
+﻿.input-wrapper {
+    margin-left: 5px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    background-color: #577741;
+}
+
+.input-wrapper input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.input-wrapper:focus-within {
+    /*outline: 2px solid blue;*/
+    border: 1px solid blue;
+}
+
+.interval-container label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.interval-container input[type='radio'] {
+    margin-right: 8px;
+}
