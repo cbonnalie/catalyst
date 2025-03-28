@@ -1,6 +1,15 @@
 ﻿import sqlite3 from 'sqlite3'
-import {open, Database} from 'sqlite'
+import {Database, open} from 'sqlite'
 import path from 'path'
+
+interface Event {
+    event_type: string;
+    description: string;
+    percent_3months: number;
+    percent_6months: number;
+    percent_1year: number;
+    percent_5years: number;
+}
 
 // absolute path to db
 const dbPath = path.resolve(__dirname, '..', 'databases', 'events.db')
@@ -26,4 +35,12 @@ export function getDatabase(): Database {
         throw new Error('Database does not exist. Call initializeDatabase() first')
     }
     return db
+}
+
+export async function getFiveEvents(): Promise<Event[] | undefined> {
+    return db?.all<Event[]>(
+        `SELECT *
+         FROM events
+         ORDER BY RANDOM() LIMIT 5
+        `);
 }

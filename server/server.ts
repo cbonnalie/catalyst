@@ -1,6 +1,10 @@
 ﻿import express from "express"
 import cors from "cors"
-import {initializeDatabase, getDatabase} from "./database"
+import {
+    initializeDatabase,
+    getDatabase,
+    getFiveEvents
+} from "./database"
 
 const app = express()
 // allows frontend requests
@@ -26,7 +30,7 @@ app.get("/api", async (_, res) => {
     res.json({message: "API is working!"})
 })
 
-app.get("/db", async (req, res) => {
+app.get("/db", async () => {
     try {
         const db = getDatabase()
         console.log(db)
@@ -34,6 +38,23 @@ app.get("/db", async (req, res) => {
     } catch (err) {
         console.log("Error fetching database", err)
     }
+})
+
+app.get("/api/fiveEvents", async (req, res) => {
+    try {
+        const events = await getFiveEvents()
+        if (events) {
+            console.log("Events from database:", events)
+            res.header("Content-Type", "application/json")
+            res.json(events)
+        } else {
+            res.status(500).json({error: "Failed to fetch events"})
+        }
+    } catch (err) {
+        console.error("Error fetching five? events:", err)
+        res.status(500).json({error: "Internal Server Error"})
+    }
+
 })
 
 startServer()
