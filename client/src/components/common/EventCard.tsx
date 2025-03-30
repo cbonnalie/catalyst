@@ -1,105 +1,62 @@
-﻿import React from 'react';
+﻿import React from "react"
+import {Event} from "../../@types/types"
 
+/**
+ * Defines props for the EventCard component
+ */
 interface EventCardProps {
-    event: {
-        event_type: string,
-        description: string,
-        percent_3months: number;
-        percent_6months: number;
-        percent_1year: number;
-        percent_5years: number;
-    }
-    investmentAmount: string;
-    selectedInterval: string;
-    onInvestmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onSubmit: () => void;
+    event: Event
+    investmentAmount: string
+    selectedInterval: string
+    onInvestmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onSubmit: () => void
 }
 
-function EventCard({
-    event,
-    investmentAmount,
-    selectedInterval,
-    onInvestmentChange,
-    onIntervalChange,
-    onSubmit,
-}: EventCardProps) {
-    const THREE_MONTHS = "3 months";
-    const SIX_MONTHS = "6 months";
-    const ONE_YEAR = "1 year";
-    const FIVE_YEARS = "5 years";
-
+/**
+ * EventCard component to display event details and allow user input for investments
+ * @param event                 - event to display in the card
+ * @param investmentAmount      - amount to invest
+ * @param selectedInterval      - selected time interval
+ * @param onInvestmentChange    - handler for changing investment amount
+ * @param onIntervalChange      - handler for changing the investment interval
+ * @param onSubmit              - handler for submitting the investment
+ */
+const EventCard: React.FC<EventCardProps> = (
+    {
+        event,
+        investmentAmount,
+        selectedInterval,
+        onInvestmentChange,
+        onIntervalChange,
+        onSubmit,
+    }) => {
     return (
-        <div className="event-card-container">
-            <div className="event-card">
-                <p>{event.description}</p>
+        <div className="event-card"> {/* event card container */}
+            <h2>{event.description}</h2>
+
+            <input
+                type="number" value={investmentAmount}
+                onChange={onInvestmentChange}
+                placeholder="Investment Amount"
+            />
+
+            <div>
+                {/* maps through available intervals to create radio buttons */}
+                {["3 months", "6 months", "1 year", "5 years"].map((interval) => (
+                    <label key={interval}>
+                        <input
+                            type="radio"
+                            value={interval}
+                            checked={selectedInterval === interval}
+                            onChange={onIntervalChange}
+                        />
+                        {interval}
+                    </label>
+                ))}
             </div>
 
-            <div className="interval-container">
-                <label htmlFor="3months">
-                    <input
-                        type={"radio"}
-                        id="3months"
-                        name={"interval"}
-                        value={THREE_MONTHS}
-                        checked={selectedInterval === THREE_MONTHS}
-                        onChange={onIntervalChange}
-                    />
-                    {THREE_MONTHS}
-                </label>
-
-                <label htmlFor="6months">
-                    <input
-                        type={"radio"}
-                        id="6months"
-                        name={"interval"}
-                        value={SIX_MONTHS}
-                        checked={selectedInterval === SIX_MONTHS}
-                        onChange={onIntervalChange}
-                    />
-                    {SIX_MONTHS}
-                </label>
-
-                <label htmlFor="1year">
-                    <input
-                        type={"radio"}
-                        id="1uear"
-                        name={"interval"}
-                        value={ONE_YEAR}
-                        checked={selectedInterval === ONE_YEAR}
-                        onChange={onIntervalChange}
-                    />
-                    {ONE_YEAR}
-                </label>
-
-                <label htmlFor="5years">
-                    <input
-                        type={"radio"}
-                        id="5years"
-                        name={"interval"}
-                        value={FIVE_YEARS}
-                        checked={selectedInterval === FIVE_YEARS}
-                        onChange={onIntervalChange}
-                    />
-                    {FIVE_YEARS}
-                </label>
-            </div>
-
-            <div className="investment-container">
-                Amount to invest:
-                <div className={"input-wrapper"}>
-                    <span className={"dollar-sign"}>$</span>
-                    <input
-                        type={"text"}
-                        id={"investment"}
-                        name={"investment"}
-                        placeholder={"enter text here"}
-                        value={investmentAmount}
-                        onChange={onInvestmentChange}
-                    />
-                </div>
-            </div>
-            <button onClick={onSubmit}>Submit</button>
+            <button onClick={onSubmit}>Invest</button>
         </div>
     )
 }

@@ -1,7 +1,7 @@
 import {Routes, Route} from 'react-router-dom'
-import Home from './components/pages/Home'
-import About from './components/pages/About'
-import Game from './components/pages/Game.tsx'
+import Home from './pages/Home'
+import About from './pages/About'
+import Game from './components/game/Game.tsx'
 
 const App = () => {
 

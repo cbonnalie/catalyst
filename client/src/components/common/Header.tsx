@@ -1,11 +1,11 @@
-﻿import {useState} from 'react';
+﻿import {useState} from 'react'
 
 const Header = () => {
 
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false)
 
     const handleMenuToggle = () => {
-        setMenuOpen(!menuOpen);
+        setMenuOpen(!menuOpen)
     }
 
     return (
@@ -35,6 +35,6 @@ const Header = () => {
             </div>
         </div>
     )
-};
+}
 
-export default Header;
+export default Header

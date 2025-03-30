@@ -1,4 +1,4 @@
-﻿import Header from "../common/Header"
+﻿import Header from "../components/common/Header.tsx"
 
 function Home() {
     return (
