@@ -103,19 +103,19 @@ function Game() {
         let percentChange: number = 0;
         switch (selectedInterval) {
             case "3 months":
-                timeInterval = 3
+                timeInterval = 1
                 percentChange = currentEvent.percent_3months
                 break;
             case "6 months":
-                timeInterval = 6
+                timeInterval = 2
                 percentChange = currentEvent.percent_6months
                 break;
             case "1 year":
-                timeInterval = 12
+                timeInterval = 4
                 percentChange = currentEvent.percent_1year
                 break;
             case "5 years":
-                timeInterval = 60
+                timeInterval = 20
                 percentChange = currentEvent.percent_5years
                 break;
             default:
