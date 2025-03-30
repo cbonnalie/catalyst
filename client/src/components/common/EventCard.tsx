@@ -1,4 +1,4 @@
-﻿import React, {useState} from 'react';
+﻿import React from 'react';
 
 interface EventCardProps {
     event: {
@@ -9,25 +9,25 @@ interface EventCardProps {
         percent_1year: number;
         percent_5years: number;
     }
+    investmentAmount: string;
+    selectedInterval: string;
+    onInvestmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: () => void;
 }
 
-function EventCard({event}: EventCardProps) {
-    const startingFunds = 10_000
-    const [investmentAmount, setInvestmentAmount] = useState<string>("")
-    const [selectedInterval, setSelectedInterval] = useState<string>("")
-
-    const THREE_MONTHS = "3 months"
-    const SIX_MONTHS = "6 months"
-    const ONE_YEAR = "1 year"
-    const FIVE_YEARS = "5 years"
-
-    const handleInvestmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInvestmentAmount(e.target.value)
-    }
-
-    const handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedInterval(e.target.value)
-    }
+function EventCard({
+    event,
+    investmentAmount,
+    selectedInterval,
+    onInvestmentChange,
+    onIntervalChange,
+    onSubmit,
+}: EventCardProps) {
+    const THREE_MONTHS = "3 months";
+    const SIX_MONTHS = "6 months";
+    const ONE_YEAR = "1 year";
+    const FIVE_YEARS = "5 years";
 
     return (
         <div className="event-card-container">
@@ -43,7 +43,7 @@ function EventCard({event}: EventCardProps) {
                         name={"interval"}
                         value={THREE_MONTHS}
                         checked={selectedInterval === THREE_MONTHS}
-                        onChange={handleIntervalChange}
+                        onChange={onIntervalChange}
                     />
                     {THREE_MONTHS}
                 </label>
@@ -55,7 +55,7 @@ function EventCard({event}: EventCardProps) {
                         name={"interval"}
                         value={SIX_MONTHS}
                         checked={selectedInterval === SIX_MONTHS}
-                        onChange={handleIntervalChange}
+                        onChange={onIntervalChange}
                     />
                     {SIX_MONTHS}
                 </label>
@@ -67,7 +67,7 @@ function EventCard({event}: EventCardProps) {
                         name={"interval"}
                         value={ONE_YEAR}
                         checked={selectedInterval === ONE_YEAR}
-                        onChange={handleIntervalChange}
+                        onChange={onIntervalChange}
                     />
                     {ONE_YEAR}
                 </label>
@@ -79,7 +79,7 @@ function EventCard({event}: EventCardProps) {
                         name={"interval"}
                         value={FIVE_YEARS}
                         checked={selectedInterval === FIVE_YEARS}
-                        onChange={handleIntervalChange}
+                        onChange={onIntervalChange}
                     />
                     {FIVE_YEARS}
                 </label>
@@ -95,14 +95,11 @@ function EventCard({event}: EventCardProps) {
                         name={"investment"}
                         placeholder={"enter text here"}
                         value={investmentAmount}
-                        onChange={handleInvestmentChange}
+                        onChange={onInvestmentChange}
                     />
                 </div>
             </div>
-
-            <div className="funds-container">
-                ${startingFunds}
-            </div>
+            <button onClick={onSubmit}>Submit</button>
         </div>
     )
 }
