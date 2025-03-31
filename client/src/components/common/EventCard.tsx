@@ -32,8 +32,26 @@ const EventCard: React.FC<EventCardProps> = (
         onSubmit,
     }) => {
     return (
-        <div className="event-card"> {/* event card container */}
-            <h2>{event.description}</h2>
+        <>
+            <div className="event-card"> {/* event card container */}
+                <h2>{event.description}</h2>
+            </div>
+            <div className={"interval-options"}>
+                {/* maps through available intervals to create radio buttons */}
+                {["3 months", "6 months", "1 year", "5 years"].map((interval) => (
+                    <label key={interval} className={`interval-box ${selectedInterval === interval ? "selected" : ""}`}>
+                        <input
+                            type="radio"
+                            name={"interval"}
+                            value={interval}
+                            checked={selectedInterval === interval}
+                            onChange={onIntervalChange}
+                            className={"hidden-radio"}
+                        />
+                        {interval}
+                    </label>
+                ))}
+            </div>
 
             <input
                 type="number" value={investmentAmount}
@@ -41,23 +59,8 @@ const EventCard: React.FC<EventCardProps> = (
                 placeholder="Investment Amount"
             />
 
-            <div>
-                {/* maps through available intervals to create radio buttons */}
-                {["3 months", "6 months", "1 year", "5 years"].map((interval) => (
-                    <label key={interval}>
-                        <input
-                            type="radio"
-                            value={interval}
-                            checked={selectedInterval === interval}
-                            onChange={onIntervalChange}
-                        />
-                        {interval}
-                    </label>
-                ))}
-            </div>
-
             <button onClick={onSubmit}>Invest</button>
-        </div>
+        </>
     )
 }
 

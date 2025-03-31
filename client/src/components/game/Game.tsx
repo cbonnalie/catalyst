@@ -1,10 +1,9 @@
 ﻿import {useState} from "react"
-import Header from "../common/Header"
 import EventCard from "../common/EventCard"
 import InvestmentResults from "../game/InvestmentResults"
 import {useEvents} from "../../hooks/useEvents"
 import {useInvestments} from "../../hooks/useInvestments"
-import "../../styles/Play.css"
+import "../../styles/Game.css"
 
 /**
  * Game component that handles the main game logic and UI.
@@ -59,19 +58,20 @@ const Game = () => {
 
     return (
         <>
-            <Header/>
-            <EventCard
-                event={currentEvent}
-                investmentAmount={investmentAmount}
-                selectedInterval={selectedInterval}
-                onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
-                onIntervalChange={(e) => setSelectedInterval(
-                    e.target.value as "3 months" | "6 months" | "1 year" | "5 years"
-                )}
-                onSubmit={handleSubmit}
-            />
-            <div className="funds-container">${balance.toFixed(2)}</div>
-            <InvestmentResults choicesToProcess={completedChoices}/>
+            <div className={"event-card-wrapper"}>
+                <EventCard
+                    event={currentEvent}
+                    investmentAmount={investmentAmount}
+                    selectedInterval={selectedInterval}
+                    onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
+                    onIntervalChange={(e) => setSelectedInterval(
+                        e.target.value as "3 months" | "6 months" | "1 year" | "5 years"
+                    )}
+                    onSubmit={handleSubmit}
+                />
+                <InvestmentResults choicesToProcess={completedChoices}/>
+            </div>
+            <div className="balance-container">${balance.toFixed(2)}</div>
         </>
     );
 };

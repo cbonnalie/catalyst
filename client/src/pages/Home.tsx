@@ -1,9 +1,6 @@
-﻿import Header from "../components/common/Header.tsx"
-
-function Home() {
+﻿function Home() {
     return (
         <>
-            <Header />
             <h1>Home Page</h1>
             <p>Welcome to Catalyst!</p>
         </>
