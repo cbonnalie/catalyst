@@ -1,208 +1,167 @@
-﻿import {useState} from "react"
-import EventCard from "../common/EventCard"
-import InvestmentResults from "../game/InvestmentResults"
-import {useEvents} from "../../hooks/useEvents"
-import {useInvestments} from "../../hooks/useInvestments"
-import "../../styles/Game.css"
+﻿import { useState } from "react";
+import EventCard from "../common/EventCard";
+import InvestmentResults from "../game/InvestmentResults";
+import { useEvents } from "../../hooks/useEvents";
+import { useInvestments } from "../../hooks/useInvestments";
+import "../../styles/Game.css";
 
 /**
  * Game component that handles the main game logic and UI.
  */
 const Game = () => {
-    const {events, loading, error} = useEvents()
+    const { events, loading, error } = useEvents();
     const {
-        completedChoices,
-        balance,
+        completedUserInvestments: completedUserInvestments,
+        recentlyCompletedInvestments: recentlyCompletedInvestments,
+        liveUserInvestments: liveUserInvestments,
+        userBalance: userBalance,
         updateInvestments,
         processInvestments,
-        allInvestments,
-        liveUserInvestments,
         setUserBalance,
-    } = useInvestments()
-    const [currentEventIndex, setCurrentEventIndex] = useState(0)
-    const [investmentAmount, setInvestmentAmount] = useState<string>("")
-    const [selectedInterval, setSelectedInterval] = useState<
-        "" | "3 months" | "6 months" | "1 year" | "5 years"
-    >("")
-    const [currentQuarter, setCurrentQuarter] = useState<number>(1)
-    const [currentYear, setCurrentYear] = useState<number>(1)
-    const [finalizedGame, setFinalizedGame] = useState<boolean>(false)
+    } = useInvestments();
 
-    // render loading, error, and no events found states if applicable
-    if (loading) return <div>Loading...</div>
-    if (error) return <div>Error: {error}</div>
-    if (events.length === 0) return <div>No events found.</div>
+    const [currentEventIndex, setCurrentEventIndex] = useState(0);
+    const [investmentAmount, setInvestmentAmount] = useState<string>("");
+    const [selectedInterval, setSelectedInterval] = useState<"" | "3 months" | "6 months" | "1 year" | "5 years">("");
+    const [currentQuarter, setCurrentQuarter] = useState<number>(1);
+    const [currentYear, setCurrentYear] = useState<number>(1);
+    const [finalizedGame, setFinalizedGame] = useState<boolean>(false);
 
-    // the current event to display
-    const currentEvent = events[currentEventIndex]
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+    if (events.length === 0) return <div>No events found.</div>;
+
+    const currentEvent = events[currentEventIndex];
 
     /**
-     * Handles the submission of the investment form.
+     * Handles investment submission.
      */
     const handleSubmit = () => {
+        if (!investmentAmount || !selectedInterval) return;
+        const investment = parseFloat(investmentAmount);
+        if (isNaN(investment) || investment > userBalance) return;
 
-        // check if the investment amount and selected interval are valid
-        if (!investmentAmount || !selectedInterval) return
-        const investment = parseFloat(investmentAmount)
-        if (isNaN(investment)) return
-
-        // investment intervals and their corresponding time and percent values
         const intervals = {
-            "3 months": {time: 1, percent: currentEvent.percent_3months},
-            "6 months": {time: 2, percent: currentEvent.percent_6months},
-            "1 year": {time: 4, percent: currentEvent.percent_1year},
-            "5 years": {time: 20, percent: currentEvent.percent_5years},
+            "3 months": { time: 1, percent: currentEvent.percent_3months },
+            "6 months": { time: 2, percent: currentEvent.percent_6months },
+            "1 year": { time: 4, percent: currentEvent.percent_1year },
+            "5 years": { time: 20, percent: currentEvent.percent_5years },
         };
 
-        const {time, percent} = intervals[
-            selectedInterval as keyof typeof intervals
-            ]
+        const { time, percent } = intervals[selectedInterval as keyof typeof intervals];
 
-        // add the investment to the user's choices
         updateInvestments({
             description: currentEvent.description,
             investment_amount: investment,
             time_interval: time,
             percent_change: percent,
-        })
+        });
 
-        let newQuarter = currentQuarter + 1
-        let newYear = currentYear
-
-        if (newQuarter > 4) {
-            newQuarter -= 4
-            newYear += 1
-        }
-
-        setCurrentQuarter(newQuarter)
-        setCurrentYear(newYear)
-        setCurrentEventIndex((prev) => prev + 1)
-
-        if (currentEventIndex < events.length - 1) {
-            setInvestmentAmount("")
-            setSelectedInterval("")
-            processInvestments()
-        }
-    }
+        updateGameProgress();
+    };
 
     /**
-     * Finalizes the game by calculating gains from live investments
-     * and adding them to the final balance.
+     * Updates the game timeline and processes investments.
+     */
+    const updateGameProgress = () => {
+        setCurrentEventIndex((prev) => prev + 1);
+        setCurrentQuarter((prev) => (prev % 4) + 1);
+        setCurrentYear((prev) => (currentQuarter === 4 ? prev + 1 : prev));
+        setInvestmentAmount("");
+        setSelectedInterval("");
+        processInvestments();
+    };
+
+    /**
+     * Finalizes the game by cashing out all live investments.
      */
     const finalizeGame = () => {
-        // Only run this once
         if (finalizedGame) return;
 
-        // Calculate the value of all live investments and add to balance
-        let additionalBalance = 0;
+        const additionalBalance = liveUserInvestments.reduce((total, investment) => {
+            const gain = Math.round(investment.investment_amount * investment.percent_change * 100) / 100;
+            return total + investment.investment_amount + gain;
+        }, 0);
 
-        liveUserInvestments.forEach(investment => {
-            // Calculate the current value with partial gains based on time invested
-            const originalAmount = investment.investment_amount;
-            const gain = Math.round(originalAmount * investment.percent_change * 100) / 100;
-            additionalBalance += originalAmount + gain;
-        });
-
-        // Update the balance
-        setUserBalance(prevBalance => prevBalance + additionalBalance);
+        setUserBalance((prev) => prev + additionalBalance);
         setFinalizedGame(true);
-    }
+    };
 
-    const displayEndGameSummary = () => {
-        // When displaying end game summary, finalize the game
-        if (!finalizedGame) {
-            finalizeGame();
-        }
-
-
-        const completedInvestments = allInvestments.filter(investment => {
-            return !liveUserInvestments.some(liveInv =>
-                liveInv.description === investment.description &&
-                liveInv.investment_amount === investment.investment_amount &&
-                liveInv.time_interval === investment.time_interval &&
-                liveInv.percent_change === investment.percent_change
-            );
-        });
-
-
-        return (
-            <div className={"end-game-summary"}>
-                <h3>End Game Summary</h3>
-                <p>Final Balance: ${balance.toFixed(2)}</p>
-                <h4>Completed Investments:</h4>
-                {completedInvestments.map((investment, index) => (
-                    <div key={index} className={"summary-investment"}>
-                        <p>{investment.description}</p>
-                        <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
-                        <p>Time Interval: {investment.time_interval} months</p>
-                        <p>Percent Change: {investment.percent_change.toFixed(2)}%</p>
-                        <p>
-                            Gain: ${Math.round(
-                            investment.investment_amount * investment.percent_change * 100) / 100
-                        }
-                        </p>
-                    </div>
-                ))}
-
-                {liveUserInvestments.length > 0 && (
-                    <div>
-                        <h4>Live Investments Cashed Out at End:</h4>
-                        {liveUserInvestments.map((investment, index) => (
-                            <div key={`live-${index}`} className={"summary-investment"}>
-                                <p>{investment.description}</p>
-                                <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
-                                <p>Time Remaining: {investment.time_interval} quarters</p>
-                                <p>Percent Change: {investment.percent_change.toFixed(2)}%</p>
-                                <p>
-                                    Gain: ${Math.round(
-                                    investment.investment_amount * investment.percent_change * 100) / 100
-                                }
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        )
-    }
-
-    const isGameOver = currentEventIndex >= events.length
+    const isGameOver = currentEventIndex >= events.length;
 
     return (
         <>
-            <div className={"event-card-wrapper"}>
+            <div className="event-card-wrapper">
                 {isGameOver ? (
-                    displayEndGameSummary()
+                    <EndGameSummary
+                        balance={userBalance}
+                        completedInvestments={completedUserInvestments}
+                        liveInvestments={liveUserInvestments}
+                        finalizeGame={finalizeGame}
+                        finalizedGame={finalizedGame}
+                    />
                 ) : (
                     <>
                         <EventCard
                             event={currentEvent}
                             investmentAmount={investmentAmount}
                             selectedInterval={selectedInterval}
-                            onInvestmentChange={(e) =>
-                                setInvestmentAmount(e.target.value)
-                            }
-                            onIntervalChange={(e) =>
-                                setSelectedInterval(
-                                    e.target.value as
-                                        | "3 months"
-                                        | "6 months"
-                                        | "1 year"
-                                        | "5 years"
-                                )
-                            }
+                            onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
+                            onIntervalChange={(e) => setSelectedInterval(e.target.value as "3 months" | "6 months" | "1 year" | "5 years")}
                             onSubmit={handleSubmit}
                         />
-                        <InvestmentResults choicesToProcess={completedChoices}/>
+                        <InvestmentResults choicesToProcess={recentlyCompletedInvestments} />
                     </>
                 )}
             </div>
-            <div className="balance-container">${balance.toFixed(2)}</div>
+            <div className="balance-container">${userBalance.toFixed(2)}</div>
             <div className="date-tracker">
                 {!finalizedGame && `Year ${currentYear} Quarter ${currentQuarter}`}
             </div>
         </>
     );
 };
+
+/**
+ * Displays the summary at the end of the game.
+ */
+const EndGameSummary = ({ balance, completedInvestments, liveInvestments, finalizeGame, finalizedGame }: {
+    balance: number;
+    completedInvestments: any[];
+    liveInvestments: any[];
+    finalizeGame: () => void;
+    finalizedGame: boolean;
+}) => {
+    if (!finalizedGame) finalizeGame();
+
+    return (
+        <div className="end-game-summary">
+            <h3>End Game Summary</h3>
+            <p>Final Balance: ${balance.toFixed(2)}</p>
+            <InvestmentList title="Completed Investments" investments={completedInvestments} />
+            {liveInvestments.length > 0 && <InvestmentList title="Live Investments Cashed Out at End" investments={liveInvestments} />}
+        </div>
+    );
+};
+
+/**
+ * Renders a list of investments.
+ */
+const InvestmentList = ({ title, investments }: { title: string; investments: any[] }) => (
+    <div>
+        <h4>{title}</h4>
+        {investments.map((investment, index) => (
+            <div key={index} className="summary-investment">
+                <p>{investment.description}</p>
+                <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
+                <p>Time Interval: {investment.time_interval} months</p>
+                <p>Percent Change: {investment.percent_change.toFixed(2)}%</p>
+                <p>
+                    Gain: ${Math.round(investment.investment_amount * investment.percent_change * 100) / 100}
+                </p>
+            </div>
+        ))}
+    </div>
+);
 
 export default Game;
