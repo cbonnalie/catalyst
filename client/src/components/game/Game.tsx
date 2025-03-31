@@ -14,6 +14,8 @@ const Game = () => {
     const [currentEventIndex, setCurrentEventIndex] = useState(0)
     const [investmentAmount, setInvestmentAmount] = useState<string>("")
     const [selectedInterval, setSelectedInterval] = useState<"" | "3 months" | "6 months" | "1 year" | "5 years">("")
+    const [currentQuarter, setCurrentQuarter] = useState<number>(1)
+    const [currentYear, setCurrentYear] = useState<number>(1)
 
     // render loading, error, and no events found states if applicable
     if (loading) return <div>Loading...</div>
@@ -50,6 +52,17 @@ const Game = () => {
             percent_change: percent,
         })
 
+        let newQuarter = currentQuarter + 1
+        let newYear = currentYear
+
+        if (newQuarter > 4) {
+            newQuarter -= 4
+            newYear += 1
+        }
+
+        setCurrentQuarter(newQuarter)
+        setCurrentYear(newYear)
+
         setCurrentEventIndex((prev) => prev + 1)
         setInvestmentAmount("")
         setSelectedInterval("")
@@ -72,6 +85,7 @@ const Game = () => {
                 <InvestmentResults choicesToProcess={completedChoices}/>
             </div>
             <div className="balance-container">${balance.toFixed(2)}</div>
+            <div className="date-tracker">Year {currentYear} Quarter {currentQuarter}</div>
         </>
     );
 };
