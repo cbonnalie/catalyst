@@ -5,17 +5,19 @@ import {Investment} from "../@types/types"
  * Hook to manage investments.
  */
 export const useInvestments = () => {
-    const [liveUserChoices, setLiveUserChoices] = useState<Investment[]>([])
-    const [completedChoices, setCompletedChoices] = useState<Investment[]>([])
-    const [balance, setBalance] = useState<number>(10000)
+    const [liveUserInvestments, setLiveUserInvestments] = useState<Investment[]>([])
+    const [completedUserInvestments, setCompletedUserInvestments] = useState<Investment[]>([])
+    const [allUserInvestments, setAllUserInvestments] = useState<Investment[]>([])
+    const [userBalance, setUserBalance] = useState<number>(10000)
 
     /**
      * Function to update the investments.
      * @param newChoice - The new investment choice to be added.
      */
     const updateInvestments = (newChoice: Investment) => {
-        setLiveUserChoices([...liveUserChoices, newChoice])
-        setBalance((prev) => prev - newChoice.investment_amount)
+        setLiveUserInvestments([...liveUserInvestments, newChoice])
+        setAllUserInvestments([...allUserInvestments, newChoice])
+        setUserBalance((prev) => prev - newChoice.investment_amount)
     }
 
     /**
@@ -23,33 +25,41 @@ export const useInvestments = () => {
      * If the time interval reaches zero, the investment is considered completed.
      */
     const processInvestments = () => {
-        setCompletedChoices([])
-        setLiveUserChoices((prevChoices) => {
+        setCompletedUserInvestments([])
+        setLiveUserInvestments((prevChoices) => {
             const updatedChoices = prevChoices.map(
                 (choice) => ({
                     ...choice,
                     time_interval: choice.time_interval - 1,
                 }))
 
-            const expiredChoices = updatedChoices.filter(
+            const expiredInvestments = updatedChoices.filter(
                 (choice) => choice.time_interval === 0)
 
-            const remainingChoices = updatedChoices.filter(
+            const remainingInvestments = updatedChoices.filter(
                 (choice) => choice.time_interval > 0)
 
             // Update completed investments
-            setCompletedChoices((prev) => [...prev, ...expiredChoices])
+            setCompletedUserInvestments((prev) => [...prev, ...expiredInvestments])
 
             // Update balance based on completed investments
-            expiredChoices.forEach((choice) => {
+            expiredInvestments.forEach((choice) => {
                 const gain = Math.round(choice.investment_amount * choice.percent_change * 100) / 100;
-                setBalance((prev) => prev + choice.investment_amount + gain)
+                setUserBalance((prev) => prev + choice.investment_amount + gain)
             })
 
             // Only keep the investments that still have time left
-            return remainingChoices
+            return remainingInvestments
         })
     }
 
-    return {liveUserChoices, completedChoices, balance, updateInvestments, processInvestments}
+    return {
+        completedChoices: completedUserInvestments,
+        balance: userBalance,
+        updateInvestments,
+        processInvestments,
+        allInvestments: allUserInvestments,
+        liveUserInvestments: liveUserInvestments,
+        setUserBalance,
+    }
 }
