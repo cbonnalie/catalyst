@@ -24,12 +24,13 @@ export const useInvestments = () => {
         setLiveUserInvestments((prevLiveInvestments) => {
             const updatedInvestments = prevLiveInvestments.map((investment) => ({
                 ...investment,
-                time_interval: investment.time_interval - 1,
+                time_remaining: investment.time_remaining - 1,
             }));
 
-            const expiredInvestments = updatedInvestments.filter((inv) => inv.time_interval === 0);
-            const remainingInvestments = updatedInvestments.filter((inv) => inv.time_interval > 0);
-
+            const expiredInvestments = updatedInvestments.filter(
+                (inv) => inv.time_remaining === 0);
+            const remainingInvestments = updatedInvestments.filter(
+                (inv) => inv.time_remaining > 0);
             setRecentlyCompletedInvestments(expiredInvestments); // Update recent investments
 
             if (expiredInvestments.length > 0) {

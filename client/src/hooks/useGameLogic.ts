@@ -41,6 +41,7 @@ export const useGameLogic = () => {
             description: currentEvent.description,
             investment_amount: investment,
             time_interval: time,
+            time_remaining: time,
             percent_change: percent,
         });
 

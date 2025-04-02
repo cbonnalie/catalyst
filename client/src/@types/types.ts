@@ -17,5 +17,6 @@ export interface Investment {
     description: string
     investment_amount: number
     time_interval: number
+    time_remaining: number
     percent_change: number
 }
