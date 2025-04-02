@@ -1,11 +1,12 @@
 ﻿import {useState} from "react"
-import {Investment} from "../@types/types"
+import {Investment, InvestmentHistory} from "../@types/types"
 
 export const useInvestments = () => {
     const [liveUserInvestments, setLiveUserInvestments] = useState<Investment[]>([]);
     const [completedUserInvestments, setCompletedUserInvestments] = useState<Investment[]>([]);
     const [recentlyCompletedInvestments, setRecentlyCompletedInvestments] = useState<Investment[]>([]);
     const [userBalance, setUserBalance] = useState<number>(10000);
+    const [balanceHistory, setBalanceHistory] = useState<InvestmentHistory[]>([]);
 
     /**
      * Function to update the investments.
@@ -50,12 +51,14 @@ export const useInvestments = () => {
 
     return {
         completedUserInvestments,
-        recentlyCompletedInvestments, // New state for recent investments
+        recentlyCompletedInvestments,
         liveUserInvestments,
         userBalance,
+        balanceHistory,
         updateInvestments,
         processInvestments,
         setUserBalance,
+        setBalanceHistory
     };
 };
 

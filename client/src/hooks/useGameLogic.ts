@@ -1,20 +1,22 @@
-﻿import { useState } from "react";
-import { useEvents } from "./useEvents";
-import { useInvestments } from "./useInvestments";
+﻿import {useState, useEffect} from "react";
+import {useEvents} from "./useEvents";
+import {useInvestments} from "./useInvestments";
 
 export const useGameLogic = () => {
-    const { events, loading, error } = useEvents();
+    const {events, loading, error} = useEvents();
     const {
         completedUserInvestments,
         recentlyCompletedInvestments,
         liveUserInvestments,
         userBalance,
+        balanceHistory,
         updateInvestments,
         processInvestments,
         setUserBalance,
+        setBalanceHistory,
     } = useInvestments();
 
-    const [currentEventIndex, setCurrentEventIndex] = useState(0);
+    const [currentEventIndex, setCurrentEventIndex] = useState<number>(0);
     const [investmentAmount, setInvestmentAmount] = useState<string>("");
     const [selectedInterval, setSelectedInterval] = useState<"" | "3 months" | "6 months" | "1 year" | "5 years">("");
     const [currentQuarter, setCurrentQuarter] = useState<number>(1);
@@ -29,13 +31,13 @@ export const useGameLogic = () => {
         if (isNaN(investment) || investment > userBalance) return;
 
         const intervals = {
-            "3 months": { time: 1, percent: currentEvent.percent_3months },
-            "6 months": { time: 2, percent: currentEvent.percent_6months },
-            "1 year": { time: 4, percent: currentEvent.percent_1year },
-            "5 years": { time: 20, percent: currentEvent.percent_5years },
+            "3 months": {time: 1, percent: currentEvent.percent_3months},
+            "6 months": {time: 2, percent: currentEvent.percent_6months},
+            "1 year": {time: 4, percent: currentEvent.percent_1year},
+            "5 years": {time: 20, percent: currentEvent.percent_5years},
         };
 
-        const { time, percent } = intervals[selectedInterval as keyof typeof intervals];
+        const {time, percent} = intervals[selectedInterval as keyof typeof intervals];
 
         updateInvestments({
             description: currentEvent.description,
@@ -57,6 +59,15 @@ export const useGameLogic = () => {
         processInvestments();
     };
 
+    useEffect(() => {
+        setBalanceHistory((prev) => {
+            if (prev.some(entry => entry.turn === `Y${currentYear} Q${currentQuarter}`)) {
+                return prev; // Prevent duplicate entries
+            }
+            return [...prev, {turn: `Y${currentYear} Q${currentQuarter}`, balance: userBalance}];
+        });
+    }, [currentYear, currentQuarter]);
+
     const finalizeGame = () => {
         if (finalizedGame) return;
 
@@ -65,7 +76,14 @@ export const useGameLogic = () => {
             return total + investment.investment_amount + gain;
         }, 0);
 
-        setUserBalance((prev) => prev + additionalBalance);
+        const finalBalance = userBalance + additionalBalance;
+        setUserBalance(finalBalance);
+        setBalanceHistory((prev) => {
+            if (prev.some(entry => entry.turn === `Y${currentYear} Q${currentQuarter}`)) {
+                return prev; // Prevent duplicate entries
+            }
+            return [...prev, {turn: `Y${currentYear} Q${currentQuarter}`, balance: finalBalance}];
+        });
         setFinalizedGame(true);
     };
 
@@ -74,6 +92,7 @@ export const useGameLogic = () => {
         loading,
         error,
         userBalance,
+        balanceHistory,
         completedUserInvestments,
         recentlyCompletedInvestments,
         liveUserInvestments,

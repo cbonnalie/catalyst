@@ -8,13 +8,14 @@ interface EndGameSummaryProps {
     finalizedGame: boolean;
 }
 
-const EndGameSummary = ({
-                            balance,
-                            completedInvestments,
-                            liveInvestments,
-                            finalizeGame,
-                            finalizedGame
-                        }: EndGameSummaryProps) => {
+const EndGameSummary = (
+    {
+        balance,
+        completedInvestments,
+        liveInvestments,
+        finalizeGame,
+        finalizedGame
+    }: EndGameSummaryProps) => {
     if (!finalizedGame) finalizeGame();
 
     return (

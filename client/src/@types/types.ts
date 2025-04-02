@@ -20,3 +20,8 @@ export interface Investment {
     time_remaining: number
     percent_change: number
 }
+
+export interface InvestmentHistory {
+    turn: string
+    balance: number
+}
