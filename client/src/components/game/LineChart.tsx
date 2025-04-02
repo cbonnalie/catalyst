@@ -1,6 +1,7 @@
 ﻿import {LineChart, Line, Tooltip, ResponsiveContainer, XAxis, YAxis} from 'recharts';
+import {InvestmentHistory} from "../../@types/types.ts";
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({active, payload, label}: any) => {
     if (active && payload && payload.length) {
         return (
             <div className="custom-tooltip">
@@ -9,21 +10,24 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             </div>
         );
     }
-
     return null;
 }
 
-export const renderLineChart = (data: any) => {
-    // find the minimum balance value in the data to set the Y-axis min value
-    const minBalance = Math.min(...data.map((item: any) => item.balance));
+export const renderLineChart = (data: InvestmentHistory[]) => {
+    const minBalance = Math.min(...data.map((item) => item.balance));
 
     return (
         <ResponsiveContainer width={"100%"} height={"100%"}>
             <LineChart data={data}>
-                <XAxis dataKey="turn" tick={false}/>
-                <YAxis domain={[minBalance, "auto"]}/>
-                <Tooltip content={<CustomTooltip />} />
-                <Line type="monotone" dataKey="balance" stroke="#8884d8" />
+                <XAxis dataKey="turn" tick={false} hide={true}/>
+                <YAxis domain={[minBalance, "auto"]} tick={false} hide={true}/>
+                <Tooltip content={<CustomTooltip/>}/>
+                <Line
+                    type="linear"
+                    dataKey="balance"
+                    stroke="#3e8e41"
+                    strokeWidth={3}
+                />
             </LineChart>
         </ResponsiveContainer>
     );
