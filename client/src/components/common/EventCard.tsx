@@ -36,6 +36,7 @@ const EventCard: React.FC<EventCardProps> = (
             <div className="event-card"> {/* event card container */}
                 <h2>{event.description}</h2>
             </div>
+
             <div className="investment-grid">
                 {/* Column 1: 3 months and 6 months */}
                 <div className="grid-column">
