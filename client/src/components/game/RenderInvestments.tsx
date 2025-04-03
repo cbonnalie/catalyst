@@ -19,6 +19,7 @@ export const RenderInvestments = (
 ) => {
     return (
         <div className="results-container">
+            <h3>{areFinalized ? "Completed Investments" : "Current Investments"}</h3>
             {choicesToProcess.map((choice, index) => (
                 <div key={index} className="results-wrapper">
                     <p className="result-description">{choice.description}</p>

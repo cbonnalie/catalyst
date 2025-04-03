@@ -159,8 +159,9 @@ input[type="number"] {
 .investments-wrapper {
     display: flex;
     flex: 1;
-    background-color: #f8f9fa;
+    background-color: #dfdfdf;
     padding: 15px;
+    filter: drop-shadow(0 0 .5rem #8a8a8a);
     border-radius: 8px;
     justify-content: center;
     align-items: center;
