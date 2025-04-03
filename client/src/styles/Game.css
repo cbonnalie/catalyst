@@ -130,7 +130,7 @@ input[type="number"] {
 
 /********** BALANCE **********/
 
-.balance-container {
+.balance-wrapper {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -140,7 +140,7 @@ input[type="number"] {
     font-weight: bold;
 }
 
-.date-tracker {
+.date-wrapper {
     position: fixed;
     bottom: 0;
     right: 0;
@@ -165,10 +165,7 @@ input[type="number"] {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.balance-chart-container {
-    position: fixed;
-    bottom: 15%;
-    left: 20px;
+.balance-chart-wrapper {
     width: 30vw;
     height: 20vh;
     border: 2px solid #cacaca;
@@ -179,4 +176,12 @@ input[type="number"] {
     border: 1px solid black;
     padding: 0 5px;
     backdrop-filter: blur(5px);
+}
+
+.info-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
 }

@@ -57,13 +57,21 @@ const Game = () => {
                     <InvestmentResults choicesToProcess={recentlyCompletedInvestments}/>
                 </div>
             )}
-            <div className="balance-container">${userBalance.toFixed(2)}</div>
+            <div className="balance-wrapper">${userBalance.toFixed(2)}</div>
 
-            <div className={"balance-chart-container"}>
-                {renderLineChart(balanceHistory)}
+            <div className={"info-container"}>
+                <div className={"balance-chart-wrapper"}>
+                    {renderLineChart(balanceHistory)}
+                </div>
+                <div className={"completed-investments-wrapper"}>
+                    Completed Investments
+                </div>
+                <div className={"portfolio-wrapper"}>
+                    Portfolio
+                </div>
             </div>
 
-            <div className="date-tracker">
+            <div className="date-wrapper">
                 {!finalizedGame && `Year ${currentYear} Quarter ${currentQuarter}`}
             </div>
         </div>
