@@ -1,26 +1,34 @@
-﻿.game-container {
-    position: relative;
-    width: 100%;
-    height: 100vh;
+﻿body {
     overflow: hidden;
 }
 
-.loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 30px;
-    font-weight: bold;
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 90vh;
+    width: 100%;
+    position:absolute;
+    bottom: 0;
+    left: 0;
+    padding: 20px;
+    max-width: 100vw;
+}
+
+/*************** First Row ***************/
+
+.row1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40vh;
 }
 
 .event-card-wrapper {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 75%;
-    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 80vw;
 }
 
 .event-card {
@@ -31,29 +39,29 @@
     align-items: center;
     width: 100%;
     height: auto;
-    padding: 20px 0;
+    padding: 20px;
     margin: 0 auto;
     border-radius: 10px;
 }
 
-/* Investment Grid Layout */
 .investment-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    margin-top: 20px;
+    margin: 20px auto;
     padding-bottom: 50px;
-    width: 100%;
+    width: 80%;
+    justify-content: center;
+    align-items: center;
 }
 
 .grid-column {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    justify-content: space-between; /* Distributes space evenly */
+    justify-content: center;
+    align-items: center;
 }
-
-/********** INVESTMENT ENTRY BOX **********/
 
 /* To remove the number input arrows in most browsers */
 input[type="number"]::-webkit-outer-spin-button,
@@ -128,60 +136,75 @@ input[type="number"] {
     background-color: #3e8e41;
 }
 
-/********** BALANCE **********/
+
+/*************** Second Row ***************/
+
+.row2 {
+    display: flex;
+    justify-content: space-between;
+    max-width: 90vw;
+    height: 40vh;
+    gap: 20px;
+}
+
+.info-container {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+    gap: 20px;
+    width: 80vw;
+}
+
+.balance-chart-wrapper,
+.completed-investments-wrapper,
+.portfolio-wrapper {
+    flex: 1;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/*************** Third Row ***************/
+
+.row3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 10vh;
+}
+
+.balance-wrapper,
+.date-wrapper {
+    flex: 1;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
 
 .balance-wrapper {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    margin-bottom: 10px;
-    margin-left: 10px;
-    font-size: 30px;
-    font-weight: bold;
+    text-align: left;
+    bottom: 15px;
+    left: 15px;
 }
 
 .date-wrapper {
     position: fixed;
-    bottom: 0;
-    right: 0;
-    margin-bottom: 10px;
-    margin-right: 10px;
-    font-size: 30px;
-    font-weight: bold;
+    text-align: right;
+    bottom: 15px;
+    right: 15px;
 }
 
-.end-game-summary {
+
+
+.loading{
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 60%;
-    max-height: 80vh;
-    overflow-y: auto;
-    text-align: center;
-    background-color: #dfdfdf;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.balance-chart-wrapper {
-    width: 30vw;
-    height: 20vh;
-    border: 2px solid #cacaca;
-    border-radius: 5px;
-}
-
-.custom-tooltip {
-    border: 1px solid black;
-    padding: 0 5px;
-    backdrop-filter: blur(5px);
-}
-
-.info-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
 }

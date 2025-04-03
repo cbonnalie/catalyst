@@ -45,34 +45,40 @@ const Game = () => {
                     />
                 </div>
             ) : (
-                <div className="event-card-wrapper">
-                    <EventCard
-                        event={currentEvent}
-                        investmentAmount={investmentAmount}
-                        selectedInterval={selectedInterval}
-                        onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
-                        onIntervalChange={(e) => setSelectedInterval(e.target.value as "3 months" | "6 months" | "1 year" | "5 years")}
-                        onSubmit={handleSubmit}
-                    />
-                    <InvestmentResults choicesToProcess={recentlyCompletedInvestments}/>
+                <div className={"row1"}>
+                    <div className="event-card-wrapper">
+                        <EventCard
+                            event={currentEvent}
+                            investmentAmount={investmentAmount}
+                            selectedInterval={selectedInterval}
+                            onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
+                            onIntervalChange={(e) => setSelectedInterval(e.target.value as "3 months" | "6 months" | "1 year" | "5 years")}
+                            onSubmit={handleSubmit}
+                        />
+                        {/*<InvestmentResults choicesToProcess={recentlyCompletedInvestments}/>*/}
+                    </div>
                 </div>
             )}
-            <div className="balance-wrapper">${userBalance.toFixed(2)}</div>
 
-            <div className={"info-container"}>
-                <div className={"balance-chart-wrapper"}>
-                    {renderLineChart(balanceHistory)}
-                </div>
-                <div className={"completed-investments-wrapper"}>
-                    Completed Investments
-                </div>
-                <div className={"portfolio-wrapper"}>
-                    Portfolio
+            <div className={"row2"}>
+                <div className={"info-container"}>
+                    <div className={"balance-chart-wrapper"}>
+                        {renderLineChart(balanceHistory)}
+                    </div>
+                    <div className={"completed-investments-wrapper"}>
+                        Completed Investments
+                    </div>
+                    <div className={"portfolio-wrapper"}>
+                        Portfolio
+                    </div>
                 </div>
             </div>
 
-            <div className="date-wrapper">
-                {!finalizedGame && `Year ${currentYear} Quarter ${currentQuarter}`}
+            <div className={"row3"}>
+                <div className="balance-wrapper">${userBalance.toFixed(2)}</div>
+                <div className="date-wrapper">
+                    {!finalizedGame && `Year ${currentYear} Quarter ${currentQuarter}`}
+                </div>
             </div>
         </div>
     );
