@@ -2,33 +2,39 @@
 import {Event} from "../../@types/types"
 
 /**
- * Defines props for the EventCard component
+ * Defines props for the EventCardInput component
  */
 interface EventCardProps {
     event: Event
     investmentAmount: string
     selectedInterval: string
+    selectedType: string
     onInvestmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void
     onSubmit: () => void
 }
 
 /**
- * EventCard component to display event details and allow user input for investments
+ * EventCardInput component to display event details and allow user input for investments
  * @param event                 - event to display in the card
  * @param investmentAmount      - amount to invest
  * @param selectedInterval      - selected time interval
+ * @param selectedType
  * @param onInvestmentChange    - handler for changing investment amount
  * @param onIntervalChange      - handler for changing the investment interval
+ * @param onTypeChange
  * @param onSubmit              - handler for submitting the investment
  */
-const EventCard: React.FC<EventCardProps> = (
+const EventCardInput: React.FC<EventCardProps> = (
     {
         event,
         investmentAmount,
         selectedInterval,
+        selectedType,
         onInvestmentChange,
         onIntervalChange,
+        onTypeChange,
         onSubmit,
     }: EventCardProps) => {
     return (
@@ -39,7 +45,7 @@ const EventCard: React.FC<EventCardProps> = (
                 </div>
 
                 <div className="investment-grid">
-                    {/* Column 1: 3 months and 6 months */}
+                    {/* Column 1: Investment Lengths */}
                     <div className="grid-column">
                         <label className={`interval-box ${selectedInterval === "3 months" ? "selected" : ""}`}>
                             <input
@@ -63,10 +69,6 @@ const EventCard: React.FC<EventCardProps> = (
                             />
                             6 months
                         </label>
-                    </div>
-
-                    {/* Column 2: 1 year and 5 years */}
-                    <div className="grid-column">
                         <label className={`interval-box ${selectedInterval === "1 year" ? "selected" : ""}`}>
                             <input
                                 type="radio"
@@ -91,6 +93,42 @@ const EventCard: React.FC<EventCardProps> = (
                         </label>
                     </div>
 
+                    {/* Column 2: Investment Types */}
+                    <div className="grid-column">
+                        <label className={`option-box ${selectedType === "Invest" ? "selected" : ""}`}>
+                            <input
+                                type="radio"
+                                name="option"
+                                value="Invest"
+                                checked={selectedType === "Invest"}
+                                onChange={onTypeChange}
+                                className="hidden-radio"
+                            />
+                            Invest
+                        </label>
+                        <label className={`option-box ${selectedType === "Short" ? "selected" : ""}`}>
+                            <input
+                                type="radio"
+                                name="option"
+                                value="Short"
+                                checked={selectedType === "Short"}
+                                onChange={onTypeChange}
+                                className="hidden-radio"
+                            />
+                            Short
+                        </label>
+                        <label className={`option-box ${selectedType === "Skip" ? "selected" : ""}`}>
+                            <input
+                                type="radio"
+                                name="option"
+                                value="Skip"
+                                checked={selectedType === "Skip"}
+                                onChange={onTypeChange}
+                                className="hidden-radio"
+                            />
+                            Skip
+                        </label>
+                    </div>
                     {/* Column 3: Investment amount and invest button */}
                     <div className="grid-column">
                         <input
@@ -100,7 +138,7 @@ const EventCard: React.FC<EventCardProps> = (
                             placeholder="Investment Amount"
                             className="investment-amount"
                         />
-                        <button onClick={onSubmit} className="invest-button">Invest</button>
+                        <button onClick={onSubmit} className="invest-button">Continue</button>
                     </div>
                 </div>
             </div>
@@ -108,4 +146,5 @@ const EventCard: React.FC<EventCardProps> = (
     )
 }
 
-export default EventCard;
+export default EventCardInput;
+

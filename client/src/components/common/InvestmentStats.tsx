@@ -1,5 +1,5 @@
 ﻿import {renderLineChart} from "../game/LineChart.tsx";
-import {Investments} from "../game/Investments.tsx";
+import {InvestmentCards} from "../game/InvestmentCards.tsx";
 import {Investment, InvestmentHistory} from "../../@types/types.ts";
 import {JSX} from "react";
 
@@ -20,10 +20,10 @@ export const InvestmentStats = (
                     {renderLineChart(balanceHistory)}
                 </div>
                 <div className={"investments-wrapper"}>
-                    <Investments choicesToProcess={completedUserInvestments} areFinalized={true}/>
+                    <InvestmentCards choicesToProcess={completedUserInvestments} areFinalized={true}/>
                 </div>
                 <div className={"investments-wrapper"}>
-                    <Investments choicesToProcess={liveUserInvestments} areFinalized={false}/>
+                    <InvestmentCards choicesToProcess={liveUserInvestments} areFinalized={false}/>
                 </div>
             </div>
         </div>

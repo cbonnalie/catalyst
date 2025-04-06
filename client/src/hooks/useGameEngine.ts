@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 
 export const useGameEngine = () => {
     const { events, loading, error } = useEvents();
+
     const {
         completedUserInvestments,
         recentlyCompletedInvestments,
@@ -28,6 +29,7 @@ export const useGameEngine = () => {
 
     const [investmentAmount, setInvestmentAmount] = useState("");
     const [selectedInterval, setSelectedInterval] = useState<"" | "3 months" | "6 months" | "1 year" | "5 years">("");
+    const [selectedType, setSelectedType] = useState<"" | "Invest" | "Short" | "Skip">("");
 
     const { finalizeGame, finalizedGame } = useFinalization({
         liveUserInvestments,
@@ -41,7 +43,7 @@ export const useGameEngine = () => {
     const currentEvent = events[currentEventIndex];
 
     const handleSubmit = () => {
-        if (!investmentAmount || !selectedInterval) return;
+        if (!investmentAmount || !selectedInterval || !selectedType) return;
         const investment = parseFloat(investmentAmount);
         if (isNaN(investment) || investment > userBalance) return;
 
@@ -60,10 +62,12 @@ export const useGameEngine = () => {
             time_interval: time,
             time_remaining: time,
             percent_change: percent,
+            type: selectedType
         });
 
         setInvestmentAmount("");
         setSelectedInterval("");
+        setSelectedType("");
 
         advanceTurn();
         processInvestments();
@@ -85,7 +89,9 @@ export const useGameEngine = () => {
         investmentAmount,
         setInvestmentAmount,
         selectedInterval,
+        selectedType,
         setSelectedInterval,
+        setSelectedType,
         currentYear,
         currentQuarter,
         userBalance,

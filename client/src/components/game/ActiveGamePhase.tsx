@@ -1,4 +1,4 @@
-﻿import EventCard from "../common/EventCard.tsx";
+﻿import EventCardInput from "../common/EventCardInput.tsx";
 import {StatusFooter} from "../common/StatusFooter.tsx";
 import {InvestmentStats} from "../common/InvestmentStats.tsx";
 import {JSX} from "react";
@@ -8,9 +8,11 @@ interface Props {
     currentEvent: Event;
     investmentAmount: string;
     selectedInterval: string;
+    selectedType: string;
     handleSubmit: () => void;
     setInvestmentAmount: (amount: string) => void;
     setSelectedInterval: (interval: "3 months" | "6 months" | "1 year" | "5 years") => void;
+    setSelectedType: (type: "Invest" | "Short" | "Skip") => void;
     balanceHistory: InvestmentHistory[];
     completedUserInvestments: Investment[];
     liveUserInvestments: Investment[];
@@ -31,21 +33,25 @@ export const ActiveGamePhase = (
         liveUserInvestments,
         investmentAmount,
         selectedInterval,
+        selectedType,
         currentEvent,
         handleSubmit,
         setInvestmentAmount,
-        setSelectedInterval
+        setSelectedInterval,
+        setSelectedType,
     }: Props
 ): JSX.Element => {
 
     return (
         <>
-            <EventCard
+            <EventCardInput
                 event={currentEvent}
                 investmentAmount={investmentAmount}
                 selectedInterval={selectedInterval}
+                selectedType={selectedType}
                 onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
                 onIntervalChange={(e) => setSelectedInterval(e.target.value as "3 months" | "6 months" | "1 year" | "5 years")}
+                onTypeChange={(e) => setSelectedType(e.target.value as "Invest" | "Short" | "Skip")}
                 onSubmit={handleSubmit}
             />
 

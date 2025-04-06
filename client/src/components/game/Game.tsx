@@ -16,6 +16,7 @@ const Game: () => JSX.Element = (): JSX.Element => {
         liveUserInvestments,
         investmentAmount,
         selectedInterval,
+        selectedType,
         currentYear,
         currentQuarter,
         finalizedGame,
@@ -23,6 +24,7 @@ const Game: () => JSX.Element = (): JSX.Element => {
         handleSubmit,
         setInvestmentAmount,
         setSelectedInterval,
+        setSelectedType,
         finalizeGame,
         isGameOver,
     } = useGameLogic();
@@ -46,9 +48,11 @@ const Game: () => JSX.Element = (): JSX.Element => {
                     currentEvent={currentEvent}
                     investmentAmount={investmentAmount}
                     selectedInterval={selectedInterval}
+                    selectedType={selectedType}
                     handleSubmit={handleSubmit}
                     setInvestmentAmount={setInvestmentAmount}
                     setSelectedInterval={setSelectedInterval}
+                    setSelectedType={setSelectedType}
                     balanceHistory={balanceHistory}
                     completedUserInvestments={completedUserInvestments}
                     liveUserInvestments={liveUserInvestments}

@@ -6,8 +6,16 @@
 
 const MONTH_COEFFICIENT = 3;
 
-const getGain = (amount: number, percent: number, positive: boolean) => {
-    const gain = Math.round(amount * percent * 100) / 100;
+const getGain = (
+    amount: number,
+    percent: number,
+    positive: boolean,
+    isShort: boolean) => {
+
+    const gain: number = isShort
+        ? Math.round(amount + (amount * percent * 100) / 100)
+        : Math.round(amount * percent * 100) / 100;
+
     return (
         positive
             ? ` $${gain}`
@@ -24,7 +32,14 @@ const InvestmentList = (
             <div key={index} className="summary-investment">
                 <p>{investment.description}</p>
 
-                <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
+                {investment.type === "Investment"
+                    ? <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
+                    : (
+                        investment.type === "Short"
+                            ? <p>Short: ${investment.investment_amount.toFixed(2)}</p>
+                            : <></>
+                    )
+                }
 
                 <p>
                     Length of Investment: {MONTH_COEFFICIENT * investment.time_interval}{" "}
@@ -43,8 +58,8 @@ const InvestmentList = (
                 <p>
                     Gain:
                     {investment.percent_change > 0
-                        ? getGain(investment.investment_amount, investment.percent_change, true)
-                        : getGain(investment.investment_amount, investment.percent_change, false)
+                        ? getGain(investment.investment_amount, investment.percent_change, true, investment.type === "Short")
+                        : getGain(investment.investment_amount, investment.percent_change, false, investment.type === "Short")
                     }
                 </p>
             </div>

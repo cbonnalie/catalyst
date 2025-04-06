@@ -19,6 +19,7 @@ export interface Investment {
     time_interval: number
     time_remaining: number
     percent_change: number
+    type: string
 }
 
 export interface InvestmentHistory {
