@@ -14,7 +14,7 @@ interface InvestmentResultsProps {
  * @param areFinalized      - A boolean indicating whether the investments have been finalized or not.
  * @constructor             - A functional component that renders the investment results.
  */
-export const RenderInvestments = (
+export const Investments = (
     {choicesToProcess, areFinalized}: InvestmentResultsProps,
 ) => {
     return (
