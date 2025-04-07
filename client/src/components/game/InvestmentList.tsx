@@ -1,80 +1,79 @@
-﻿interface InvestmentListProps {
+﻿import React from 'react';
+import { Investment, GAME_CONSTANTS } from '../../@types/types';
+import { calculateInvestmentGain, formatCurrency, formatPercentage } from '../../utils/investmentUtils';
+
+interface InvestmentListProps {
     title: string;
-    investments: any[];
+    investments: Investment[];
     isCompleted: boolean;
 }
 
-const MONTH_COEFFICIENT = 3;
+/**
+ * Displays a list of investments with detailed information
+ */
+const InvestmentList: React.FC<InvestmentListProps> = ({ title, investments, isCompleted }) => {
+    /**
+     * Formats the length of investment for display
+     */
+    const formatInvestmentLength = (months: number): string => {
+        const totalMonths = GAME_CONSTANTS.MONTH_COEFFICIENT * months;
+        return `${totalMonths} ${totalMonths === 1 ? "month" : "months"}`;
+    };
 
-const getGain = (
-    amount: number,
-    percent: number,
-    isShort: boolean) => {
+    /**
+     * Formats the gain/loss value with the appropriate sign
+     */
+    const formatGain = (investment: Investment): string => {
+        const gain = calculateInvestmentGain(investment);
+        const formattedValue = formatCurrency(Math.abs(gain));
 
-    const gain: number = isShort
-        ? Math.round((amount * -percent) * 100) / 100
-        : Math.round(amount * percent * 100) / 100;
+        return gain >= 0 ? `${formattedValue}` : `-${formattedValue}`;
+    };
 
-    console.log("gain", gain)
+    return (
+        <div className="investment-list">
+            <h3>{title}</h3>
 
-    if (gain >= 0 && isShort) {
-        return ` $${gain}`;
-    }
+            {investments.length === 0 ? (
+                <p className="no-investments">No investments to show</p>
+            ) : (
+                investments.map((investment, index) => (
+                    <div key={index} className="summary-investment">
+                        <p className="investment-description">{investment.description}</p>
 
-    if (gain >= 0 && !isShort) {
-        return ` $${gain}`;
-    }
+                        {investment.type !== "Skip" && (
+                            <>
+                                <p>
+                                    {investment.type === "Invest" ? "Investment: " : "Short: "}
+                                    {formatCurrency(investment.investment_amount)}
+                                </p>
 
-    if (gain < 0 && isShort) {
-        return ` -$${Math.abs(gain)}`;
-    }
+                                <p>
+                                    Length of Investment: {formatInvestmentLength(investment.time_interval)}
+                                </p>
 
-    if (gain < 0 && !isShort) {
-        return ` -$${Math.abs(gain)}`;
-    }
-}
+                                {!isCompleted && investment.time_remaining > 0 && (
+                                    <p>
+                                        Time Remaining: {formatInvestmentLength(investment.time_remaining)}
+                                    </p>
+                                )}
 
-const InvestmentList = (
-    {title, investments, isCompleted}: InvestmentListProps) => (
-    <div>
-        <h3>{title}</h3>
+                                <p>Percent Change: {formatPercentage(investment.percent_change)}</p>
 
-        {investments.map((investment, index) => (
-            <div key={index} className="summary-investment">
-                <p>{investment.description}</p>
+                                <p className={`gain ${calculateInvestmentGain(investment) >= 0 ? 'positive' : 'negative'}`}>
+                                    Gain: {formatGain(investment)}
+                                </p>
+                            </>
+                        )}
 
-                {investment.type === "Invest"
-                    ? <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
-                    : (
-                        investment.type === "Short"
-                            ? <p>Short: ${investment.investment_amount.toFixed(2)}</p>
-                            : <></>
-                    )
-                }
-
-                <p>
-                    Length of Investment: {MONTH_COEFFICIENT * investment.time_interval}{" "}
-                    {investment.time_interval === 1 ? "month" : "months"}
-                </p>
-
-                {!isCompleted && (
-                    <p>
-                        Time Remaining: {MONTH_COEFFICIENT * investment.time_remaining}{" "}
-                        {investment.time_remaining === 1 ? "month" : "months"}
-                    </p>
-                )}
-
-                <p>Percent Change: {(investment.percent_change * 100).toFixed(0)}%</p>
-
-                <p>
-                    Gain:
-                    {
-                        getGain(investment.investment_amount, investment.percent_change, investment.type === "Short")
-                    }
-                </p>
-            </div>
-        ))}
-    </div>
-);
+                        {investment.type === "Skip" && (
+                            <p className="skipped">This investment opportunity was skipped</p>
+                        )}
+                    </div>
+                ))
+            )}
+        </div>
+    );
+};
 
 export default InvestmentList;

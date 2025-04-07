@@ -1,66 +1,70 @@
-﻿import {Investment} from "../../@types/types";
+﻿import React from 'react';
+import {Investment} from '../../@types/types';
+import {calculateInvestmentGain, formatCurrency, formatPercentage} from '../../utils/investmentUtils';
 
 /**
- * Props for the InvestmentResults component.
+ * Props for the InvestmentCards component.
  */
-interface InvestmentResultsProps {
+interface InvestmentCardsProps {
     choicesToProcess: Investment[];
     areFinalized: boolean;
 }
 
 /**
- * Displays the results of user investments.
+ * Displays a card for each investment with relevant details
  */
-export const InvestmentCards = (
+export const InvestmentCards: React.FC<InvestmentCardsProps> = (
     {
         choicesToProcess,
-        areFinalized,
-    }: InvestmentResultsProps) => {
-    const getInvestmentResultDetails = (choice: Investment) => {
-        if (choice.type === "Skip") {
-            return null;
+        areFinalized
+    }) => {
+    /**
+     * Renders the details of an investment based on its type and status
+     */
+    const renderInvestmentDetails = (investment: Investment) => {
+        if (investment.type === "Skip") {
+            return <p>Skipped this event</p>;
         }
 
-        const investmentAmount = choice.investment_amount.toFixed(2);
-        const percentChange = (choice.percent_change * 100).toFixed(0);
+        const investmentAmountFormatted = formatCurrency(investment.investment_amount);
+        const percentChangeFormatted = formatPercentage(investment.percent_change);
+        const gain = calculateInvestmentGain(investment);
+        const gainFormatted = formatCurrency(Math.abs(gain));
+        const isPositiveGain = gain >= 0;
 
-        if (choice.type === "Invest") {
-            const gain = (choice.investment_amount * choice.percent_change).toFixed(2);
-            return (
-                <>
-                    <p>Investment: ${investmentAmount}</p>
-                    {areFinalized && (
-                        <>
-                            <p>Percent Change: {percentChange}%</p>
-                            <p>Gain: ${gain}</p>
-                        </>
-                    )}
-                </>
-            );
-        } else {
-            const gain = (choice.investment_amount + (choice.investment_amount * choice.percent_change)).toFixed(2);
-            return (
-                <>
-                    <p>Short: ${investmentAmount}</p>
-                    {areFinalized && (
-                        <>
-                            <p>Percent Change: {percentChange}%</p>
-                            <p>Gain: ${parseFloat(investmentAmount) - parseFloat(gain)}</p>
-                        </>
-                    )}
-                </>
-            )
-        }
-    }
+        return (
+            <>
+                <p>
+                    {investment.type === "Invest" ? "Investment: " : "Short: "}
+                    {investmentAmountFormatted}
+                </p>
+
+                {areFinalized && (
+                    <>
+                        <p>Percent Change: {percentChangeFormatted}</p>
+                        <p>
+                            Gain: {isPositiveGain ? gainFormatted : `-${gainFormatted}`}
+                        </p>
+                    </>
+                )}
+            </>
+        );
+    };
+
     return (
         <div className="results-container">
             <h3>{areFinalized ? "Completed Investments" : "Current Investments"}</h3>
-            {choicesToProcess.map((choice, index) => (
-                <div key={index} className="results-wrapper">
-                    <p className="result-description">{choice.description}</p>
-                    {getInvestmentResultDetails(choice)}
-                </div>
-            ))}
+
+            {choicesToProcess.length === 0 ? (
+                <p className="no-investments">No investments yet</p>
+            ) : (
+                choicesToProcess.map((investment, index) => (
+                    <div key={index} className="results-wrapper">
+                        <p className="result-description">{investment.description}</p>
+                        {renderInvestmentDetails(investment)}
+                    </div>
+                ))
+            )}
         </div>
-    )
-}
+    );
+};

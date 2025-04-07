@@ -1,30 +1,24 @@
-﻿import React from "react"
-import {Event} from "../../@types/types"
+﻿import React from "react";
+import {Event, InvestmentType, TimeInterval} from "../../@types/types";
+import {isValidInvestment} from "../../utils/investmentUtils";
 
 /**
- * Defines props for the EventCardInput component
+ * Props for the EventCardInput component
  */
 interface EventCardProps {
-    event: Event
-    investmentAmount: string
-    selectedInterval: string
-    selectedType: string
-    onInvestmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-    onSubmit: () => void
+    event: Event;
+    investmentAmount: string;
+    selectedInterval: TimeInterval;
+    selectedType: InvestmentType | "";
+    userBalance: number;
+    onInvestmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: () => void;
 }
 
 /**
  * EventCardInput component to display event details and allow user input for investments
- * @param event                 - event to display in the card
- * @param investmentAmount      - amount to invest
- * @param selectedInterval      - selected time interval
- * @param selectedType
- * @param onInvestmentChange    - handler for changing investment amount
- * @param onIntervalChange      - handler for changing the investment interval
- * @param onTypeChange
- * @param onSubmit              - handler for submitting the investment
  */
 const EventCardInput: React.FC<EventCardProps> = (
     {
@@ -32,103 +26,47 @@ const EventCardInput: React.FC<EventCardProps> = (
         investmentAmount,
         selectedInterval,
         selectedType,
+        userBalance,
         onInvestmentChange,
         onIntervalChange,
         onTypeChange,
         onSubmit,
-    }: EventCardProps) => {
+    }) => {
+    // Check if the current selection is valid for submission
+    const isValid =
+        (selectedType === "Skip") ||
+        (selectedType &&
+            selectedInterval &&
+            isValidInvestment(investmentAmount, userBalance, selectedType));
+
+    // When Skip is selected, disable other fields
+    const isSkipSelected = selectedType === "Skip";
+
     return (
-        <div className={"row1"}>
+        <div className="row1">
             <div className="event-card-wrapper">
-                <div className="event-card"> {/* event card container */}
+                <div className="event-card">
                     <h2>{event.description}</h2>
                 </div>
 
                 <div className="investment-grid">
                     {/* Column 1: Investment Lengths */}
                     <div className="grid-column">
-                        <label className={`interval-box ${selectedInterval === "3 months" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="interval"
-                                value="3 months"
-                                checked={selectedInterval === "3 months"}
-                                onChange={onIntervalChange}
-                                className="hidden-radio"
-                            />
-                            3 months
-                        </label>
-                        <label className={`interval-box ${selectedInterval === "6 months" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="interval"
-                                value="6 months"
-                                checked={selectedInterval === "6 months"}
-                                onChange={onIntervalChange}
-                                className="hidden-radio"
-                            />
-                            6 months
-                        </label>
-                        <label className={`interval-box ${selectedInterval === "1 year" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="interval"
-                                value="1 year"
-                                checked={selectedInterval === "1 year"}
-                                onChange={onIntervalChange}
-                                className="hidden-radio"
-                            />
-                            1 year
-                        </label>
-                        <label className={`interval-box ${selectedInterval === "5 years" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="interval"
-                                value="5 years"
-                                checked={selectedInterval === "5 years"}
-                                onChange={onIntervalChange}
-                                className="hidden-radio"
-                            />
-                            5 years
-                        </label>
+                        <IntervalOptions
+                            selectedInterval={selectedInterval}
+                            onIntervalChange={onIntervalChange}
+                            disabled={isSkipSelected}
+                        />
                     </div>
 
                     {/* Column 2: Investment Types */}
                     <div className="grid-column">
-                        <label className={`option-box ${selectedType === "Invest" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="option"
-                                value="Invest"
-                                checked={selectedType === "Invest"}
-                                onChange={onTypeChange}
-                                className="hidden-radio"
-                            />
-                            Invest
-                        </label>
-                        <label className={`option-box ${selectedType === "Short" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="option"
-                                value="Short"
-                                checked={selectedType === "Short"}
-                                onChange={onTypeChange}
-                                className="hidden-radio"
-                            />
-                            Short
-                        </label>
-                        <label className={`option-box ${selectedType === "Skip" ? "selected" : ""}`}>
-                            <input
-                                type="radio"
-                                name="option"
-                                value="Skip"
-                                checked={selectedType === "Skip"}
-                                onChange={onTypeChange}
-                                className="hidden-radio"
-                            />
-                            Skip
-                        </label>
+                        <InvestmentTypeOptions
+                            selectedType={selectedType}
+                            onTypeChange={onTypeChange}
+                        />
                     </div>
+
                     {/* Column 3: Investment amount and invest button */}
                     <div className="grid-column">
                         <input
@@ -137,14 +75,91 @@ const EventCardInput: React.FC<EventCardProps> = (
                             onChange={onInvestmentChange}
                             placeholder="Investment Amount"
                             className="investment-amount"
+                            disabled={isSkipSelected}
                         />
-                        <button onClick={onSubmit} className="invest-button">Continue</button>
+                        <button
+                            onClick={onSubmit}
+                            className="invest-button"
+                            disabled={!isValid}
+                        >
+                            Continue
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    )
+    );
+};
+
+interface IntervalOptionsProps {
+    selectedInterval: TimeInterval;
+    onIntervalChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    disabled: boolean;
 }
 
-export default EventCardInput;
+const IntervalOptions: React.FC<IntervalOptionsProps> = (
+    {
+        selectedInterval,
+        onIntervalChange,
+        disabled
+    }) => {
+    const intervals: TimeInterval[] = ["3 months", "6 months", "1 year", "5 years"];
 
+    return (
+        <>
+            {intervals.map((interval) => (
+                <label
+                    key={interval}
+                    className={`interval-box ${selectedInterval === interval ? "selected" : ""} ${disabled ? "disabled" : ""}`}
+                >
+                    <input
+                        type="radio"
+                        name="interval"
+                        value={interval}
+                        checked={selectedInterval === interval}
+                        onChange={onIntervalChange}
+                        className="hidden-radio"
+                        disabled={disabled}
+                    />
+                    {interval}
+                </label>
+            ))}
+        </>
+    );
+};
+
+interface InvestmentTypeOptionsProps {
+    selectedType: InvestmentType | "";
+    onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const InvestmentTypeOptions: React.FC<InvestmentTypeOptionsProps> = (
+    {
+        selectedType,
+        onTypeChange
+    }) => {
+    const types: InvestmentType[] = ["Invest", "Short", "Skip"];
+
+    return (
+        <>
+            {types.map((type) => (
+                <label
+                    key={type}
+                    className={`option-box ${selectedType === type ? "selected" : ""}`}
+                >
+                    <input
+                        type="radio"
+                        name="option"
+                        value={type}
+                        checked={selectedType === type}
+                        onChange={onTypeChange}
+                        className="hidden-radio"
+                    />
+                    {type}
+                </label>
+            ))}
+        </>
+    );
+};
+
+export default EventCardInput;

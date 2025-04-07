@@ -1,28 +1,31 @@
-﻿import EventCardInput from "../common/EventCardInput.tsx";
-import {StatusFooter} from "../common/StatusFooter.tsx";
-import {InvestmentStats} from "../common/InvestmentStats.tsx";
-import React, {JSX} from "react";
-import {Event, Investment, InvestmentHistory} from "../../@types/types.ts";
+﻿import React from "react";
+import EventCardInput from "../common/EventCardInput";
+import {StatusFooter} from "../common/StatusFooter";
+import {InvestmentStats} from "../common/InvestmentStats";
+import {Event, Investment, InvestmentHistory, InvestmentType, TimeInterval} from "../../@types/types";
 
-interface Props {
+interface ActiveGamePhaseProps {
     currentEvent: Event;
     investmentAmount: string;
-    selectedInterval: string;
-    selectedType: string;
+    selectedInterval: TimeInterval;
+    selectedType: InvestmentType | "";
+    userBalance: number;
     handleSubmit: () => void;
     setInvestmentAmount: (amount: string) => void;
-    setSelectedInterval: (interval: "" | "3 months" | "6 months" | "1 year" | "5 years") => void;
-    setSelectedType: (type: "Invest" | "Short" | "Skip") => void;
+    setSelectedInterval: (interval: TimeInterval) => void;
+    setSelectedType: (type: InvestmentType | "") => void;
     balanceHistory: InvestmentHistory[];
     completedUserInvestments: Investment[];
     liveUserInvestments: Investment[];
-    userBalance: number;
     finalizedGame: boolean;
     currentYear: number;
     currentQuarter: number;
 }
 
-export const ActiveGamePhase = (
+/**
+ * Component for the active phase of the game where users make investment decisions
+ */
+export const ActiveGamePhase: React.FC<ActiveGamePhaseProps> = (
     {
         userBalance,
         finalizedGame,
@@ -39,16 +42,19 @@ export const ActiveGamePhase = (
         setInvestmentAmount,
         setSelectedInterval,
         setSelectedType,
-    }: Props
-): JSX.Element => {
-
+    }) => {
+    /**
+     * Handles type change and resets other values when "Skip" is selected
+     */
     const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedType(e.target.value as "Invest" | "Short" | "Skip");
-        if (e.target.value === "Skip") {
+        const newType = e.target.value as InvestmentType;
+        setSelectedType(newType);
+
+        if (newType === "Skip") {
             setInvestmentAmount("");
             setSelectedInterval("");
         }
-    }
+    };
 
     return (
         <>
@@ -57,8 +63,9 @@ export const ActiveGamePhase = (
                 investmentAmount={investmentAmount}
                 selectedInterval={selectedInterval}
                 selectedType={selectedType}
+                userBalance={userBalance}
                 onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
-                onIntervalChange={(e) => setSelectedInterval(e.target.value as "3 months" | "6 months" | "1 year" | "5 years")}
+                onIntervalChange={(e) => setSelectedInterval(e.target.value as TimeInterval)}
                 onTypeChange={handleTypeChange}
                 onSubmit={handleSubmit}
             />
@@ -76,5 +83,5 @@ export const ActiveGamePhase = (
                 currentQuarter={currentQuarter}
             />
         </>
-    )
-}
+    );
+};

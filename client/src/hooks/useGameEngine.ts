@@ -1,98 +1,247 @@
-﻿// hooks/useGameEngine.ts
-import { useEvents } from "./useEvents";
-import { useInvestments } from "./useInvestments";
-import { useGameProgress } from "./useGameProgress";
-import { useFinalization } from "./useFinalization";
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
+import {
+    Event,
+    Investment,
+    InvestmentHistory,
+    InvestmentType,
+    TimeInterval,
+    GAME_CONSTANTS,
+    INTERVAL_MAPPING
+} from "../@types/types";
+import { calculateInvestmentGain, getPercentageForInterval } from "../utils/investmentUtils";
+import { fetchFiveEvents } from "../utils/DBFunctions.ts"
 
-export const useGameEngine = () => {
-    const { events, loading, error } = useEvents();
+/**
+ * Main hook that manages the game state and logic
+ * @param retryCounter Optional counter to trigger refetching on retry
+ */
+export const useGameEngine = (retryCounter: number = 0) => {
+    // State for game events
+    const [events, setEvents] = useState<Event[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const {
-        completedUserInvestments,
-        recentlyCompletedInvestments,
-        liveUserInvestments,
-        userBalance,
-        balanceHistory,
-        updateInvestments,
-        processInvestments,
-        setUserBalance,
-        setBalanceHistory,
-    } = useInvestments();
+    // Game progress state
+    const [currentEventIndex, setCurrentEventIndex] = useState<number>(0);
+    const [currentQuarter, setCurrentQuarter] = useState<number>(1);
+    const [currentYear, setCurrentYear] = useState<number>(1);
 
-    const {
-        currentEventIndex,
-        currentQuarter,
-        currentYear,
-        advanceTurn,
-    } = useGameProgress();
+    // Investment state
+    const [userBalance, setUserBalance] = useState<number>(GAME_CONSTANTS.STARTING_BALANCE);
+    const [balanceHistory, setBalanceHistory] = useState<InvestmentHistory[]>([
+        { turn: `Y1 Q1`, balance: GAME_CONSTANTS.STARTING_BALANCE }
+    ]);
+    const [liveUserInvestments, setLiveUserInvestments] = useState<Investment[]>([]);
+    const [completedUserInvestments, setCompletedUserInvestments] = useState<Investment[]>([]);
+    const [recentlyCompletedInvestments, setRecentlyCompletedInvestments] = useState<Investment[]>([]);
 
-    const [investmentAmount, setInvestmentAmount] = useState("");
-    const [selectedInterval, setSelectedInterval] = useState<"" | "3 months" | "6 months" | "1 year" | "5 years">("");
-    const [selectedType, setSelectedType] = useState<"" | "Invest" | "Short" | "Skip">("");
+    // UI state
+    const [investmentAmount, setInvestmentAmount] = useState<string>("");
+    const [selectedInterval, setSelectedInterval] = useState<TimeInterval>("");
+    const [selectedType, setSelectedType] = useState<InvestmentType | "">("");
+    const [finalizedGame, setFinalizedGame] = useState<boolean>(false);
 
-    const { finalizeGame, finalizedGame } = useFinalization({
-        liveUserInvestments,
-        userBalance,
-        currentYear,
-        currentQuarter,
-        setUserBalance,
-        setBalanceHistory,
-    });
+    // Get current event
+    const currentEvent = events[currentEventIndex] || null;
+    const isGameOver = currentEventIndex >= events.length;
 
-    const currentEvent = events[currentEventIndex];
+    // Fetch events on mount or when retry is triggered
+    useEffect(() => {
+        async function loadEvents() {
+            // Reset state before fetching
+            setLoading(true);
+            setError(null);
 
+            try {
+                // Replace with your actual fetch function
+                const fetchedEvents = await fetchFiveEvents();
+
+                if (fetchedEvents.length === 0) {
+                    setError("No events were returned from the server");
+                } else {
+                    setEvents(fetchedEvents);
+                }
+            } catch (err: any) {
+                setError(err.message || "Failed to load events");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadEvents();
+    }, [retryCounter]);
+
+    // Record balance history when quarter changes
+    useEffect(() => {
+        if (!loading && currentEvent) {
+            const turn = `Y${currentYear} Q${currentQuarter}`;
+            setBalanceHistory((prev) => {
+                if (prev.some(entry => entry.turn === turn)) return prev;
+                return [...prev, { turn, balance: userBalance }];
+            });
+        }
+    }, [currentYear, currentQuarter, userBalance, loading, currentEvent]);
+
+    /**
+     * Advances the game to the next turn
+     */
+    const advanceTurn = () => {
+        setCurrentEventIndex((prev) => prev + 1);
+        setCurrentQuarter((prev) => (prev % 4) + 1);
+        if (currentQuarter === 4) {
+            setCurrentYear((prev) => prev + 1);
+        }
+    };
+
+    /**
+     * Updates investments based on user selection
+     */
+    const updateInvestments = (newInvestment: Investment) => {
+        setLiveUserInvestments((prev) => [...prev, newInvestment]);
+
+        if (newInvestment.type === "Invest") {
+            setUserBalance((prev) => prev - newInvestment.investment_amount);
+        } else if (newInvestment.type === "Short") {
+            setUserBalance((prev) => prev + newInvestment.investment_amount);
+        }
+    };
+
+    /**
+     * Processes the current investments and updates completed ones
+     */
+    const processInvestments = () => {
+        setLiveUserInvestments((prevLiveInvestments) => {
+            const updatedInvestments = prevLiveInvestments.map((investment) => ({
+                ...investment,
+                time_remaining: investment.time_remaining - 1,
+            }));
+
+            const expiredInvestments = updatedInvestments.filter(
+                (inv) => inv.time_remaining === 0
+            );
+            const remainingInvestments = updatedInvestments.filter(
+                (inv) => inv.time_remaining > 0
+            );
+
+            if (expiredInvestments.length > 0) {
+                setRecentlyCompletedInvestments(expiredInvestments);
+                setCompletedUserInvestments((prev) => [...prev, ...expiredInvestments]);
+
+                setUserBalance((prevBalance) => {
+                    return expiredInvestments.reduce((total, inv) => {
+                        if (inv.type === "Skip") return total;
+
+                        const gain = calculateInvestmentGain(inv);
+
+                        if (inv.type === "Short") {
+                            // For shorts, we first return the borrowed amount, then apply the gain/loss
+                            // Since calculateInvestmentGain already inverts the sign for shorts,
+                            // we simply add the gain (which will be negative for a positive percent change)
+                            return total - inv.investment_amount + gain;
+                        }
+
+                        // For "Invest" type, we get back our investment plus any gain
+                        return total + inv.investment_amount + gain;
+                    }, prevBalance);
+                });
+            }
+
+            return remainingInvestments;
+        });
+    };
+
+    /**
+     * Handles the user's investment submission
+     */
     const handleSubmit = () => {
-        if ((!investmentAmount || !selectedInterval || !selectedType) && selectedType !== "Skip") return;
+        if (!currentEvent) return;
+
+        if ((!investmentAmount || !selectedInterval || !selectedType) && selectedType !== "Skip") {
+            console.log("Invalid submission: Missing information");
+            return;
+        }
+
         const investment = parseFloat(investmentAmount);
-        if ((isNaN(investment) || investment > userBalance) && selectedType !== "Skip") return;
+        if ((isNaN(investment) || investment <= 0 || investment > userBalance) && selectedType !== "Skip") {
+            console.log("Invalid investment amount:", investment, "user balance:", userBalance);
+            return;
+        }
 
-        const intervals = {
-            "": { time: 0, percent: 0 }, // should not happen
-            "3 months": { time: 1, percent: currentEvent.percent_3months },
-            "6 months": { time: 2, percent: currentEvent.percent_6months },
-            "1 year": { time: 4, percent: currentEvent.percent_1year },
-            "5 years": { time: 20, percent: currentEvent.percent_5years },
-        };
+        const intervalInfo = INTERVAL_MAPPING[selectedInterval];
+        const percent = selectedInterval ? getPercentageForInterval(selectedInterval, currentEvent) : 0;
 
-        const { time, percent } = intervals[selectedInterval];
+        console.log("Creating investment:", {
+            type: selectedType,
+            description: currentEvent.description,
+            investment_amount: investment || 0,
+            time_interval: selectedInterval ? intervalInfo.time : 1, // Default to 1 for Skip
+            percent_change: percent
+        });
 
         updateInvestments({
             description: currentEvent.description,
-            investment_amount: investment,
-            time_interval: time,
-            time_remaining: time,
+            investment_amount: investment || 0,
+            time_interval: selectedInterval ? intervalInfo.time : 1, // Default to 1 for Skip
+            time_remaining: selectedInterval ? intervalInfo.time : 1, // Default to 1 for Skip
             percent_change: percent,
-            type: selectedType
+            type: selectedType as InvestmentType,
         });
 
+        // Reset form
         setInvestmentAmount("");
         setSelectedInterval("");
         setSelectedType("");
 
+        // Advance game
         advanceTurn();
         processInvestments();
     };
 
-    useEffect(() => {
+    /**
+     * Finalizes the game and calculates final balance
+     */
+    const finalizeGame = () => {
+        if (finalizedGame) return;
+
+        const additionalBalance = liveUserInvestments.reduce((total, investment) => {
+            if (investment.type === "Skip") return total;
+
+            const gain = calculateInvestmentGain(investment);
+
+            if (investment.type === "Short") {
+                // For shorts, we first return the borrowed amount, then apply the gain/loss
+                // Since calculateInvestmentGain already inverts the sign for shorts,
+                // we simply add the gain
+                return total - investment.investment_amount + gain;
+            }
+
+            // For "Invest" type, we get back our investment plus any gain
+            return total + investment.investment_amount + gain;
+        }, 0);
+
+        const finalBalance = userBalance + additionalBalance;
+        setUserBalance(finalBalance);
+
         setBalanceHistory((prev) => {
             const turn = `Y${currentYear} Q${currentQuarter}`;
             if (prev.some(entry => entry.turn === turn)) return prev;
-            return [...prev, { turn, balance: userBalance }];
+            return [...prev, { turn, balance: finalBalance }];
         });
-    }, [currentYear, currentQuarter]);
+
+        setFinalizedGame(true);
+    };
 
     return {
+        // Game data
         events,
         loading,
         error,
         currentEvent,
+
+        // Game state
         investmentAmount,
-        setInvestmentAmount,
         selectedInterval,
         selectedType,
-        setSelectedInterval,
-        setSelectedType,
         currentYear,
         currentQuarter,
         userBalance,
@@ -100,9 +249,14 @@ export const useGameEngine = () => {
         completedUserInvestments,
         recentlyCompletedInvestments,
         liveUserInvestments,
+        finalizedGame,
+        isGameOver,
+
+        // Actions
+        setInvestmentAmount,
+        setSelectedInterval,
+        setSelectedType,
         handleSubmit,
         finalizeGame,
-        finalizedGame,
-        isGameOver: currentEventIndex >= events.length,
     };
 };
