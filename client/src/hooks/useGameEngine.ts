@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import {
     Event,
     Investment,
@@ -9,17 +9,19 @@ import {
     INTERVAL_MAPPING
 } from "../@types/types";
 import { calculateInvestmentGain, getPercentageForInterval } from "../utils/investmentUtils";
-import { fetchFiveEvents } from "../utils/DBFunctions.ts"
+import { fetchEvents } from "../utils/DBFunctions";
 
 /**
  * Main hook that manages the game state and logic
- * @param retryCounter Optional counter to trigger refetching on retry
+ * @param retryCounter Optional counter to trigger re-fetching on retry
+ * @param initialRoundsToPlay Optional initial number of rounds to play
  */
-export const useGameEngine = (retryCounter: number = 0) => {
+export const useGameEngine = (retryCounter: number = 0, initialRoundsToPlay: number = 5) => {
     // State for game events
     const [events, setEvents] = useState<Event[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false); // Start as false
     const [error, setError] = useState<string | null>(null);
+    const [roundsToPlay, setRoundsToPlay] = useState<number>(initialRoundsToPlay);
 
     // Game progress state
     const [currentEventIndex, setCurrentEventIndex] = useState<number>(0);
@@ -45,31 +47,35 @@ export const useGameEngine = (retryCounter: number = 0) => {
     const currentEvent = events[currentEventIndex] || null;
     const isGameOver = currentEventIndex >= events.length;
 
-    // Fetch events on mount or when retry is triggered
-    useEffect(() => {
-        async function loadEvents() {
-            // Reset state before fetching
-            setLoading(true);
-            setError(null);
+    // Function to start the game and fetch events
+    const startGame = useCallback(async (rounds: number) => {
+        setRoundsToPlay(rounds);
+        setLoading(true);
+        setError(null);
 
-            try {
-                // Replace with your actual fetch function
-                const fetchedEvents = await fetchFiveEvents();
+        try {
+            // Fetch the specified number of events
+            const fetchedEvents = await fetchEvents(rounds);
 
-                if (fetchedEvents.length === 0) {
-                    setError("No events were returned from the server");
-                } else {
-                    setEvents(fetchedEvents);
-                }
-            } catch (err: any) {
-                setError(err.message || "Failed to load events");
-            } finally {
-                setLoading(false);
+            if (fetchedEvents.length === 0) {
+                setError("No events were returned from the server");
+            } else {
+                setEvents(fetchedEvents);
+                console.log(`Fetched ${fetchedEvents.length} events`);
             }
+        } catch (err: any) {
+            setError(err.message || "Failed to load events");
+        } finally {
+            setLoading(false);
         }
+    }, []);
 
-        loadEvents();
-    }, [retryCounter]);
+    // Handle retries
+    useEffect(() => {
+        if (retryCounter > 0) {
+            startGame(roundsToPlay);
+        }
+    }, [retryCounter, roundsToPlay, startGame]);
 
     // Record balance history when quarter changes
     useEffect(() => {
@@ -134,13 +140,9 @@ export const useGameEngine = (retryCounter: number = 0) => {
                         const gain = calculateInvestmentGain(inv);
 
                         if (inv.type === "Short") {
-                            // For shorts, we first return the borrowed amount, then apply the gain/loss
-                            // Since calculateInvestmentGain already inverts the sign for shorts,
-                            // we simply add the gain (which will be negative for a positive percent change)
                             return total - inv.investment_amount + gain;
                         }
 
-                        // For "Invest" type, we get back our investment plus any gain
                         return total + inv.investment_amount + gain;
                     }, prevBalance);
                 });
@@ -169,14 +171,6 @@ export const useGameEngine = (retryCounter: number = 0) => {
 
         const intervalInfo = INTERVAL_MAPPING[selectedInterval];
         const percent = selectedInterval ? getPercentageForInterval(selectedInterval, currentEvent) : 0;
-
-        console.log("Creating investment:", {
-            type: selectedType,
-            description: currentEvent.description,
-            investment_amount: investment || 0,
-            time_interval: selectedInterval ? intervalInfo.time : 1, // Default to 1 for Skip
-            percent_change: percent
-        });
 
         updateInvestments({
             description: currentEvent.description,
@@ -209,13 +203,9 @@ export const useGameEngine = (retryCounter: number = 0) => {
             const gain = calculateInvestmentGain(investment);
 
             if (investment.type === "Short") {
-                // For shorts, we first return the borrowed amount, then apply the gain/loss
-                // Since calculateInvestmentGain already inverts the sign for shorts,
-                // we simply add the gain
                 return total - investment.investment_amount + gain;
             }
 
-            // For "Invest" type, we get back our investment plus any gain
             return total + investment.investment_amount + gain;
         }, 0);
 
@@ -251,6 +241,7 @@ export const useGameEngine = (retryCounter: number = 0) => {
         liveUserInvestments,
         finalizedGame,
         isGameOver,
+        roundsToPlay,
 
         // Actions
         setInvestmentAmount,
@@ -258,5 +249,6 @@ export const useGameEngine = (retryCounter: number = 0) => {
         setSelectedType,
         handleSubmit,
         finalizeGame,
+        startGame,
     };
 };

@@ -44,3 +44,11 @@ export async function getFiveEvents(): Promise<Event[] | undefined> {
          ORDER BY RANDOM() LIMIT 5
         `);
 }
+
+export async function getXEvents(x: number): Promise<Event[] | undefined> {
+    return db?.all<Event[]>(
+        `SELECT *
+         FROM events
+         ORDER BY RANDOM() LIMIT ?
+        `, [x]);
+}

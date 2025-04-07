@@ -3,7 +3,7 @@ import cors from "cors"
 import {
     initializeDatabase,
     getDatabase,
-    getFiveEvents
+    getFiveEvents, getXEvents
 } from "./database"
 
 const app = express()
@@ -51,10 +51,26 @@ app.get("/api/fiveEvents", async (req, res) => {
             res.status(500).json({error: "Failed to fetch events"})
         }
     } catch (err) {
-        console.error("Error fetching five? events:", err)
+        console.error("Error fetching five events:", err)
         res.status(500).json({error: "Internal Server Error"})
     }
+})
 
+app.get("/api/xEvents", async (req, res) => {
+    const x = parseInt(req.query.x as string)
+    try {
+        const events = await getXEvents(x)
+        if (events) {
+            console.log("Events from database:", events)
+            res.header("Content-Type", "application/json")
+            res.json(events)
+        } else {
+            res.status(500).json({error: "Failed to fetch events"})
+        }
+    } catch (err) {
+        console.error("Error fetching events:", err)
+        res.status(500).json({error: "Internal Server Error"})
+    }
 })
 
 startServer()

@@ -7,20 +7,24 @@
     percent_5years: number;
 }
 
-export async function fetchFiveEvents(): Promise<Event[]> {
+export async function fetchEvents(x: number): Promise<Event[]> {
     try {
-        const response = await fetch("http://localhost:3000/api/fiveEvents");
+        const response = await fetch(`http://localhost:3000/api/xEvents?x=${x}`);
+
         if (!response.ok) {
-            const errorText = await response.text()
-            console.error("Server error:", errorText)
+            const errorText = await response.text();
+            console.error("Server error:", errorText);
+            throw new Error(`Server responded with status: ${response.status}`);
         }
+
         const contentType = response.headers.get("Content-Type");
         if (!contentType || !contentType.includes("application/json")) {
             console.error(`Expected application/json, but received ${contentType}`);
         }
-        return await response.json()
+
+        return await response.json();
     } catch (error) {
-        console.error("Error fetching five! events:", error)
-        throw error
+        console.error("Error fetching events:", error);
+        throw error;
     }
 }

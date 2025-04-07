@@ -1,5 +1,7 @@
 ﻿body {
     overflow: hidden;
+    /*background: linear-gradient(135deg, #3498db, #1a3445);*/
+    background: whitesmoke;
 }
 
 .game-container {
@@ -110,6 +112,7 @@ input[type="number"] {
     height: 40px;
     box-sizing: border-box;
     transition: all 0.3s ease;
+    background-color: white;
 }
 
 .interval-box.selected,
