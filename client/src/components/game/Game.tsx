@@ -1,11 +1,11 @@
-﻿import {useGameLogic} from "../../hooks/useGameLogic";
-import "../../styles/Game.css";
+﻿import "../../styles/Game.css";
 import {GameOverPhase} from "./GameOverPhase.tsx";
 import {GameLayout} from "./GameLayout.tsx";
 import {ActiveGamePhase} from "./ActiveGamePhase.tsx";
 import {JSX} from "react";
+import {useGameEngine} from "../../hooks/useGameEngine.ts";
 
-const Game: () => JSX.Element = (): JSX.Element => {
+const Game = (): JSX.Element => {
     const {
         events,
         loading,
@@ -27,7 +27,7 @@ const Game: () => JSX.Element = (): JSX.Element => {
         setSelectedType,
         finalizeGame,
         isGameOver,
-    } = useGameLogic();
+    } = useGameEngine();
 
     if (loading) return <div className={"loading"}>Loading...</div>;
     if (error) return <div>Error: {error}</div>;

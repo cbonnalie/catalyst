@@ -22,7 +22,7 @@ export const InvestmentCards = (
         }
 
         const investmentAmount = choice.investment_amount.toFixed(2);
-        const percentChange = choice.percent_change.toFixed(2);
+        const percentChange = (choice.percent_change * 100).toFixed(0);
 
         if (choice.type === "Invest") {
             const gain = (choice.investment_amount * choice.percent_change).toFixed(2);
@@ -45,7 +45,7 @@ export const InvestmentCards = (
                     {areFinalized && (
                         <>
                             <p>Percent Change: {percentChange}%</p>
-                            <p>Gain: ${gain}</p>
+                            <p>Gain: ${parseFloat(investmentAmount) - parseFloat(gain)}</p>
                         </>
                     )}
                 </>

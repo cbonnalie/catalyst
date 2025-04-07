@@ -9,30 +9,41 @@ const MONTH_COEFFICIENT = 3;
 const getGain = (
     amount: number,
     percent: number,
-    positive: boolean,
     isShort: boolean) => {
 
     const gain: number = isShort
-        ? Math.round(amount + (amount * percent * 100) / 100)
+        ? Math.round((amount * -percent) * 100) / 100
         : Math.round(amount * percent * 100) / 100;
 
-    return (
-        positive
-            ? ` $${gain}`
-            : ` -$${Math.abs(gain)}`
-    );
+    console.log("gain", gain)
+
+    if (gain >= 0 && isShort) {
+        return ` $${gain}`;
+    }
+
+    if (gain >= 0 && !isShort) {
+        return ` $${gain}`;
+    }
+
+    if (gain < 0 && isShort) {
+        return ` -$${Math.abs(gain)}`;
+    }
+
+    if (gain < 0 && !isShort) {
+        return ` -$${Math.abs(gain)}`;
+    }
 }
 
 const InvestmentList = (
     {title, investments, isCompleted}: InvestmentListProps) => (
     <div>
         <h3>{title}</h3>
-        {/* Iterate through each investment in the list */}
+
         {investments.map((investment, index) => (
             <div key={index} className="summary-investment">
                 <p>{investment.description}</p>
 
-                {investment.type === "Investment"
+                {investment.type === "Invest"
                     ? <p>Investment: ${investment.investment_amount.toFixed(2)}</p>
                     : (
                         investment.type === "Short"
@@ -57,9 +68,8 @@ const InvestmentList = (
 
                 <p>
                     Gain:
-                    {investment.percent_change > 0
-                        ? getGain(investment.investment_amount, investment.percent_change, true, investment.type === "Short")
-                        : getGain(investment.investment_amount, investment.percent_change, false, investment.type === "Short")
+                    {
+                        getGain(investment.investment_amount, investment.percent_change, investment.type === "Short")
                     }
                 </p>
             </div>

@@ -24,8 +24,13 @@ export const useFinalization = (
 
         const additionalBalance = liveUserInvestments.reduce(
             (total: number, investment: Investment): number => {
-                const gain = investment.investment_amount * investment.percent_change;
+                const isShort = investment.type === "Short";
+                const gain = investment.investment_amount * investment.percent_change
                 const gain_rounded = Math.round((gain * 100) / 100);
+
+                if (isShort) {
+                    return total - investment.investment_amount - gain_rounded;
+                }
                 return total + investment.investment_amount + gain_rounded;
             }, 0);
 

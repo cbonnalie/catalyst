@@ -43,11 +43,12 @@ export const useGameEngine = () => {
     const currentEvent = events[currentEventIndex];
 
     const handleSubmit = () => {
-        if (!investmentAmount || !selectedInterval || !selectedType) return;
+        if ((!investmentAmount || !selectedInterval || !selectedType) && selectedType !== "Skip") return;
         const investment = parseFloat(investmentAmount);
-        if (isNaN(investment) || investment > userBalance) return;
+        if ((isNaN(investment) || investment > userBalance) && selectedType !== "Skip") return;
 
         const intervals = {
+            "": { time: 0, percent: 0 }, // should not happen
             "3 months": { time: 1, percent: currentEvent.percent_3months },
             "6 months": { time: 2, percent: currentEvent.percent_6months },
             "1 year": { time: 4, percent: currentEvent.percent_1year },

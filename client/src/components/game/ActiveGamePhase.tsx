@@ -1,7 +1,7 @@
 ﻿import EventCardInput from "../common/EventCardInput.tsx";
 import {StatusFooter} from "../common/StatusFooter.tsx";
 import {InvestmentStats} from "../common/InvestmentStats.tsx";
-import {JSX} from "react";
+import React, {JSX} from "react";
 import {Event, Investment, InvestmentHistory} from "../../@types/types.ts";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
     selectedType: string;
     handleSubmit: () => void;
     setInvestmentAmount: (amount: string) => void;
-    setSelectedInterval: (interval: "3 months" | "6 months" | "1 year" | "5 years") => void;
+    setSelectedInterval: (interval: "" | "3 months" | "6 months" | "1 year" | "5 years") => void;
     setSelectedType: (type: "Invest" | "Short" | "Skip") => void;
     balanceHistory: InvestmentHistory[];
     completedUserInvestments: Investment[];
@@ -42,6 +42,14 @@ export const ActiveGamePhase = (
     }: Props
 ): JSX.Element => {
 
+    const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedType(e.target.value as "Invest" | "Short" | "Skip");
+        if (e.target.value === "Skip") {
+            setInvestmentAmount("");
+            setSelectedInterval("");
+        }
+    }
+
     return (
         <>
             <EventCardInput
@@ -51,7 +59,7 @@ export const ActiveGamePhase = (
                 selectedType={selectedType}
                 onInvestmentChange={(e) => setInvestmentAmount(e.target.value)}
                 onIntervalChange={(e) => setSelectedInterval(e.target.value as "3 months" | "6 months" | "1 year" | "5 years")}
-                onTypeChange={(e) => setSelectedType(e.target.value as "Invest" | "Short" | "Skip")}
+                onTypeChange={handleTypeChange}
                 onSubmit={handleSubmit}
             />
 

@@ -48,8 +48,15 @@ export const useInvestments = () => {
                     return expiredInvestments.reduce((total, inv) => {
                         const gain = Math.round(inv.investment_amount * inv.percent_change * 100) / 100;
 
-                        if (inv.type === "Invest" || inv.type === "Short") {
-                            return total + gain;
+                        if (inv.type === "Short") {
+                            console.log("shorting");
+                            console.log("inv", inv.investment_amount)
+                            console.log("gain", gain)
+                            return total - inv.investment_amount - gain;
+                        }
+
+                        if (inv.type === "Invest") {
+                            return total + inv.investment_amount + gain;
                         }
 
                         return total;
