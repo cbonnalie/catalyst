@@ -1,4 +1,15 @@
 ﻿import React from "react";
+import {
+    Grid,
+    Typography,
+    Radio,
+    RadioGroup,
+    FormControlLabel,
+    FormControl,
+    TextField,
+    Button,
+    Divider,
+} from "@mui/material";
 import {Event, InvestmentType, TimeInterval} from "../../@types/types";
 import {isValidInvestment} from "../../utils/investmentUtils";
 
@@ -20,18 +31,17 @@ interface EventCardProps {
 /**
  * EventCardInput component to display event details and allow user input for investments
  */
-const EventCardInput: React.FC<EventCardProps> = (
-    {
-        event,
-        investmentAmount,
-        selectedInterval,
-        selectedType,
-        userBalance,
-        onInvestmentChange,
-        onIntervalChange,
-        onTypeChange,
-        onSubmit,
-    }) => {
+const EventCardInput: React.FC<EventCardProps> = ({
+                                                      event,
+                                                      investmentAmount,
+                                                      selectedInterval,
+                                                      selectedType,
+                                                      userBalance,
+                                                      onInvestmentChange,
+                                                      onIntervalChange,
+                                                      onTypeChange,
+                                                      onSubmit,
+                                                  }) => {
     // Check if the current selection is valid for submission
     const isValid =
         (selectedType === "Skip") ||
@@ -43,51 +53,77 @@ const EventCardInput: React.FC<EventCardProps> = (
     const isSkipSelected = selectedType === "Skip";
 
     return (
-        <div className="row1">
-            <div className="event-card-wrapper">
-                <div className="event-card">
-                    <h2>{event.description}</h2>
-                </div>
+        <>
+            {/* Event Description */}
+            <Typography variant="h4" align="center" sx={{mb: 1, fontWeight: "bold"}}>
+                {event.description}
+            </Typography>
 
-                <div className="investment-grid">
-                    {/* Column 1: Investment Lengths */}
-                    <div className="grid-column">
-                        <IntervalOptions
-                            selectedInterval={selectedInterval}
-                            onIntervalChange={onIntervalChange}
-                            disabled={isSkipSelected}
-                        />
-                    </div>
+            <Divider sx={{mb: 3}}/>
 
-                    {/* Column 2: Investment Types */}
-                    <div className="grid-column">
-                        <InvestmentTypeOptions
-                            selectedType={selectedType}
-                            onTypeChange={onTypeChange}
-                        />
-                    </div>
+            <Grid container spacing={1}>
+                {/* Investment Intervals */}
+                <Grid size={4}>
+                    <Typography variant="subtitle1" fontWeight="medium">
+                        Investment Period
+                    </Typography>
+                    <IntervalOptions
+                        selectedInterval={selectedInterval}
+                        onIntervalChange={onIntervalChange}
+                        disabled={isSkipSelected}
+                    />
+                </Grid>
 
-                    {/* Column 3: Investment amount and invest button */}
-                    <div className="grid-column">
-                        <input
-                            type="number"
-                            value={investmentAmount}
-                            onChange={onInvestmentChange}
-                            placeholder="Investment Amount"
-                            className="investment-amount"
-                            disabled={isSkipSelected}
-                        />
-                        <button
-                            onClick={onSubmit}
-                            className="invest-button"
-                            disabled={!isValid}
-                        >
-                            Continue
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                {/* Investment Types */}
+                <Grid size={4}>
+                    <Typography variant="subtitle1" fontWeight="medium">
+                        Investment Type
+                    </Typography>
+                    <InvestmentTypeOptions
+                        selectedType={selectedType}
+                        onTypeChange={onTypeChange}
+                    />
+                </Grid>
+
+                {/* Investment Amount and Submit Button */}
+                <Grid size={4}>
+                    <Typography variant="subtitle1" fontWeight="medium">
+                        Investment Amount
+                    </Typography>
+
+                    <TextField
+                        type="number"
+                        value={investmentAmount}
+                        onChange={onInvestmentChange}
+                        placeholder="Enter amount"
+                        fullWidth
+                        disabled={isSkipSelected}
+                        size="small"
+                        sx={{mb: 1}}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <Typography variant="body2" sx={{mr: 1}}>
+                                        $
+                                    </Typography>
+                                )
+                            }
+                        }}
+                    />
+
+                    <Button
+                        onClick={onSubmit}
+                        variant="contained"
+                        color="primary"
+                        size="medium"
+                        fullWidth
+                        disabled={!isValid}
+                    >
+                        CONTINUE
+                    </Button>
+                </Grid>
+            </Grid>
+        </>
     );
 };
 
@@ -97,34 +133,46 @@ interface IntervalOptionsProps {
     disabled: boolean;
 }
 
-const IntervalOptions: React.FC<IntervalOptionsProps> = (
-    {
-        selectedInterval,
-        onIntervalChange,
-        disabled
-    }) => {
+const IntervalOptions: React.FC<IntervalOptionsProps> = ({
+                                                             selectedInterval,
+                                                             onIntervalChange,
+                                                             disabled
+                                                         }) => {
     const intervals: TimeInterval[] = ["3 months", "6 months", "1 year", "5 years"];
 
     return (
-        <>
-            {intervals.map((interval) => (
-                <label
-                    key={interval}
-                    className={`interval-box ${selectedInterval === interval ? "selected" : ""} ${disabled ? "disabled" : ""}`}
-                >
-                    <input
-                        type="radio"
-                        name="interval"
+        <FormControl component="fieldset" disabled={disabled} fullWidth size="small">
+            <RadioGroup
+                name="interval"
+                value={selectedInterval}
+                onChange={onIntervalChange}
+            >
+                {intervals.map((interval) => (
+                    <FormControlLabel
+                        key={interval}
                         value={interval}
-                        checked={selectedInterval === interval}
-                        onChange={onIntervalChange}
-                        className="hidden-radio"
-                        disabled={disabled}
+                        control={<Radio size="small"/>}
+                        label={<Typography variant="body2">{interval}</Typography>}
+                        sx={{
+                            border: '1px solid #e0e0e0',
+                            borderRadius: 1,
+                            mb: 0.5,
+                            height: '36px',
+                            width: '100%',
+                            margin: 0,
+                            '& .MuiFormControlLabel-label': {
+                                position: 'absolute',
+                                left: '36px'
+                            },
+                            ...(selectedInterval === interval && {
+                                border: '1px solid #3f51b5',
+                                bgcolor: 'rgba(63, 81, 181, 0.08)'
+                            })
+                        }}
                     />
-                    {interval}
-                </label>
-            ))}
-        </>
+                ))}
+            </RadioGroup>
+        </FormControl>
     );
 };
 
@@ -133,32 +181,45 @@ interface InvestmentTypeOptionsProps {
     onTypeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InvestmentTypeOptions: React.FC<InvestmentTypeOptionsProps> = (
-    {
-        selectedType,
-        onTypeChange
-    }) => {
+const InvestmentTypeOptions: React.FC<InvestmentTypeOptionsProps> = ({
+                                                                         selectedType,
+                                                                         onTypeChange
+                                                                     }) => {
     const types: InvestmentType[] = ["Invest", "Short", "Skip"];
 
     return (
-        <>
-            {types.map((type) => (
-                <label
-                    key={type}
-                    className={`option-box ${selectedType === type ? "selected" : ""}`}
-                >
-                    <input
-                        type="radio"
-                        name="option"
+        <FormControl component="fieldset" fullWidth size="small">
+            <RadioGroup
+                name="option"
+                value={selectedType}
+                onChange={onTypeChange}
+            >
+                {types.map((type) => (
+                    <FormControlLabel
+                        key={type}
                         value={type}
-                        checked={selectedType === type}
-                        onChange={onTypeChange}
-                        className="hidden-radio"
+                        control={<Radio size="small"/>}
+                        label={<Typography variant="body2">{type}</Typography>}
+                        sx={{
+                            border: '1px solid #e0e0e0',
+                            borderRadius: 1,
+                            mb: 0.5,
+                            height: '36px',
+                            width: '100%',
+                            margin: 0,
+                            '& .MuiFormControlLabel-label': {
+                                position: 'absolute',
+                                left: '36px'
+                            },
+                            ...(selectedType === type && {
+                                border: '1px solid #3f51b5',
+                                bgcolor: 'rgba(63, 81, 181, 0.08)'
+                            })
+                        }}
                     />
-                    {type}
-                </label>
-            ))}
-        </>
+                ))}
+            </RadioGroup>
+        </FormControl>
     );
 };
 

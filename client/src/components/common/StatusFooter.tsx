@@ -1,22 +1,36 @@
-﻿import {JSX} from "react"
+﻿import React from "react";
+import { Grid, Typography } from "@mui/material";
 
 interface StatusFooterProps {
-    userBalance: number
-    finalizedGame: boolean
-    currentYear: number
-    currentQuarter: number
+    userBalance: number;
+    finalizedGame: boolean;
+    currentYear: number;
+    currentQuarter: number;
 }
 
-export const StatusFooter = (
-    {userBalance, finalizedGame, currentYear, currentQuarter}: StatusFooterProps
-): JSX.Element => {
-
+export const StatusFooter: React.FC<StatusFooterProps> = ({
+                                                              userBalance,
+                                                              finalizedGame,
+                                                              currentYear,
+                                                              currentQuarter
+                                                          }) => {
     return (
-        <div className={"row3"}>
-            <div className="balance-wrapper">${userBalance.toFixed(2)}</div>
-            <div className="date-wrapper">
-                {!finalizedGame && `Year ${currentYear} Quarter ${currentQuarter}`}
-            </div>
-        </div>
-    )
-}
+        <Grid container alignItems="center" justifyContent="space-between">
+            {/* Balance Display */}
+            <Grid size={6}>
+                <Typography variant="h6" fontWeight="bold">
+                    ${userBalance.toFixed(2)}
+                </Typography>
+            </Grid>
+
+            {/* Date Display */}
+            <Grid size={6} sx={{ textAlign: "right" }}>
+                {!finalizedGame && (
+                    <Typography variant="h6">
+                        Year {currentYear} Quarter {currentQuarter}
+                    </Typography>
+                )}
+            </Grid>
+        </Grid>
+    );
+};

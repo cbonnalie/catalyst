@@ -84,9 +84,9 @@ export const LineChart: React.FC<LineChartProps> = ({ data }) => {
                     bottom: 0,
                 }}
             >
-                <XAxis dataKey="turn" tick={false} />
+                <XAxis dataKey="turn" tick={false} axisLine={false} />
                 <YAxis
-                    domain={[Math.min(minBalance * 0.9, threshold * 0.9), "auto"]}
+                    domain={[Math.min(minBalance * 0.9, threshold * 0.9), Math.max(threshold * 1.1, minBalance * 1.1)]}
                     tickFormatter={(value) => value.toFixed(0)}
                 />
                 <Tooltip content={<CustomTooltip />} />
