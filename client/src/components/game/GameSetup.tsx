@@ -1,6 +1,8 @@
-﻿import React, { useState } from 'react';
-import '../../styles/GameSetup.css';
-import { GAME_CONSTANTS } from '../../@types/types';
+﻿import React, {useState} from 'react';
+import {GAME_CONSTANTS} from '../../@types/types';
+import Grid from '@mui/material/Grid';
+import {Button, Typography, Paper} from "@mui/material";
+import "../../styles/GameSetup.css";
 
 interface GameSetupProps {
     onStartGame: (rounds: number) => void;
@@ -9,7 +11,7 @@ interface GameSetupProps {
 /**
  * Game setup component that allows users to select number of rounds before playing
  */
-const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
+const GameSetup: React.FC<GameSetupProps> = ({onStartGame}) => {
     const [rounds, setRounds] = useState<number>(5);
     const [startingBalance, setStartingBalance] = useState<number>(GAME_CONSTANTS.STARTING_BALANCE);
 
@@ -30,40 +32,79 @@ const GameSetup: React.FC<GameSetupProps> = ({ onStartGame }) => {
     };
 
     return (
-        <div className="game-setup-container">
-            <div className="setup-card">
+        <Grid container spacing={3} className={"game-setup-container"}>
+            {/* how to play section */}
+            <Grid size={12}>
+                <Paper elevation={0} className="setup-section" sx={{p: 3, mb: 2}}>
+                    <h1>How to play</h1>
+                    <Typography component="p">
+                        Each round presents a new market event. <br/>
+                        You must decide whether to invest in a company based on the
+                        event. <br/>
+                        Choose your investment amount and type, and select an amount of time to invest. <br/>
+                        Watch your balance grow or shrink based on the event's impact. <br/><br/>
+                        The game ends after{' '}
+                        <Typography component="span" color="primary" fontWeight="bold" display="inline" fontSize={"20px"}>
+                            {rounds}
+                        </Typography>
+                        {' '}rounds.
+                    </Typography>
+                </Paper>
+            </Grid>
 
-                <div className="setup-section">
-                    <h2 className="section-title">Game Rounds</h2>
-                    <p className="section-description">
-                        Each round represents a new investment opportunity.
-                    </p>
+            {/* rounds section */}
+            <Grid size={12}>
+                <Paper elevation={0} className="setup-section" sx={{p: 3, mb: 2}}>
+                    <Grid container>
+                        <Grid size={6}>
+                            <h1>Rounds</h1>
+                        </Grid>
+                        <Grid size={6} sx={{display: "flex", alignItems: "center", justifyContent: "flex-end"}}>
+                            {roundOptions.map((option) => (
+                                <Button
+                                    sx={{marginLeft: 2}}
+                                    key={option}
+                                    variant={rounds === option ? "contained" : "outlined"}
+                                    onClick={() => handleRoundChange(option)}
+                                >
+                                    {option} Rounds
+                                </Button>
+                            ))}
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Grid>
 
-                    <div className="rounds-options">
-                        {roundOptions.map(option => (
-                            <button
-                                key={option}
-                                className={`round-option ${rounds === option ? 'selected' : ''}`}
-                                onClick={() => handleRoundChange(option)}
-                            >
-                                {option} Rounds
-                            </button>
-                        ))}
-                    </div>
-                </div>
+            {/* balance section */}
+            <Grid size={12}>
+                <Paper elevation={0} className="setup-section" sx={{p: 3, mb: 2}}>
+                    <Grid container>
+                        <Grid size={6}>
+                            <h1>Balance</h1>
+                        </Grid>
+                        <Grid size={6} sx={{display: "flex", alignItems: "center", justifyContent: "flex-end"}}>
+                            <div className={"setup-balance"} style={{fontSize: "30px", fontWeight: "bold"}}>
+                                ${startingBalance.toLocaleString()}
+                            </div>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Grid>
 
-                <div className="setup-section">
-                    <h2 className="section-title">Starting Balance</h2>
-                    <div className="balance-display">
-                        ${startingBalance.toLocaleString()}
-                    </div>
-                </div>
-
-                <button className="start-game-button" onClick={handleStartGame}>
+            {/* start game button */}
+            <Grid size={12} sx={{display: "flex", justifyContent: "center", mt: 2}}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleStartGame}
+                    sx={{minWidth: 400}}
+                >
                     Start Game
-                </button>
-            </div>
-        </div>
+                </Button>
+            </Grid>
+
+        </Grid>
     );
 };
 
