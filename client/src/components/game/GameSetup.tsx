@@ -35,7 +35,7 @@ const GameSetup: React.FC<GameSetupProps> = ({onStartGame}) => {
         <Grid container spacing={3} className={"game-setup-container"}>
             {/* how to play section */}
             <Grid size={12}>
-                <Paper elevation={0} className="setup-section" sx={{p: 3, mb: 2}}>
+                <Paper className="setup-section" sx={{p: 3, mb: 2, bgcolor: '#f5f5f5'}}>
                     <h1>How to play</h1>
                     <Typography component="p">
                         Each round presents a new market event. <br/>
@@ -54,7 +54,7 @@ const GameSetup: React.FC<GameSetupProps> = ({onStartGame}) => {
 
             {/* rounds section */}
             <Grid size={12}>
-                <Paper elevation={0} className="setup-section" sx={{p: 3, mb: 2}}>
+                <Paper className="setup-section" sx={{p: 3, mb: 2, bgcolor: '#f5f5f5'}}>
                     <Grid container>
                         <Grid size={6}>
                             <h1>Rounds</h1>
@@ -64,7 +64,8 @@ const GameSetup: React.FC<GameSetupProps> = ({onStartGame}) => {
                                 <Button
                                     sx={{marginLeft: 2}}
                                     key={option}
-                                    variant={rounds === option ? "contained" : "outlined"}
+                                    variant="contained"
+                                    color={rounds === option ? "primary" : "inherit"}
                                     onClick={() => handleRoundChange(option)}
                                 >
                                     {option} Rounds
@@ -77,7 +78,7 @@ const GameSetup: React.FC<GameSetupProps> = ({onStartGame}) => {
 
             {/* balance section */}
             <Grid size={12}>
-                <Paper elevation={0} className="setup-section" sx={{p: 3, mb: 2}}>
+                <Paper className="setup-section" sx={{p: 3, mb: 2, bgcolor: '#f5f5f5'}}>
                     <Grid container>
                         <Grid size={6}>
                             <h1>Balance</h1>

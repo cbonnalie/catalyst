@@ -1,7 +1,9 @@
 ﻿body {
     overflow: hidden;
     /*background: linear-gradient(135deg, #3498db, #1a3445);*/
-    background: whitesmoke;
+    background: white;
+    margin: 0;
+    padding: 0;
 }
 
 .game-container {
