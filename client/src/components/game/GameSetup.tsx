@@ -13,7 +13,7 @@ interface GameSetupProps {
  */
 const GameSetup: React.FC<GameSetupProps> = ({onStartGame}) => {
     const [rounds, setRounds] = useState<number>(5);
-    const [startingBalance, setStartingBalance] = useState<number>(GAME_CONSTANTS.STARTING_BALANCE);
+    const [startingBalance, _] = useState<number>(GAME_CONSTANTS.STARTING_BALANCE);
 
     // Options for number of rounds
     const roundOptions = [3, 5, 10, 20];

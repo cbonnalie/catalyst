@@ -57,7 +57,7 @@ export const ActiveGamePhase: React.FC<ActiveGamePhaseProps> = ({
     };
 
     return (
-        <Container maxWidth={"xl"} sx={{height: "100vh", outline: "1px solid red"}} >
+        <Container maxWidth={"xl"} sx={{height: "100vh"}} >
             <Box
                 sx={{
                     height: "calc(100vh - 110px)", // Accounting for header height

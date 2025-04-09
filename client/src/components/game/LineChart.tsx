@@ -88,6 +88,8 @@ export const LineChart: React.FC<LineChartProps> = ({ data }) => {
                 <YAxis
                     domain={[Math.min(minBalance * 0.9, threshold * 0.9), Math.max(threshold * 1.1, minBalance * 1.1)]}
                     tickFormatter={(value) => value.toFixed(0)}
+                    axisLine={false}
+                    tick={false}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <ReferenceLine
