@@ -1,10 +1,13 @@
 ﻿import React, {useEffect} from 'react';
-import InvestmentList from './InvestmentList';
-import {Investment} from '../../@types/types';
+import {Investment, InvestmentHistory} from '../../@types/types';
 import {formatCurrency} from '../../utils/investmentUtils';
+import {Container, Box, Paper, Typography, Grid} from "@mui/material";
+import {renderLineChart} from "./LineChart.tsx";
+import {InvestmentCards} from "./InvestmentCards.tsx";
 
 interface EndGameSummaryProps {
     balance: number;
+    balanceHistory: InvestmentHistory[];
     completedInvestments: Investment[];
     liveInvestments: Investment[];
     finalizeGame: () => void;
@@ -17,6 +20,7 @@ interface EndGameSummaryProps {
 const EndGameSummary: React.FC<EndGameSummaryProps> = (
     {
         balance,
+        balanceHistory,
         completedInvestments,
         liveInvestments,
         finalizeGame,
@@ -41,41 +45,34 @@ const EndGameSummary: React.FC<EndGameSummaryProps> = (
         .length;
 
     return (
-        <div className="end-game-summary">
-            <h1>End Game Summary</h1>
-            <h2>Final Balance: {formatCurrency(balance)}</h2>
+        <Container maxWidth={"xl"}>
+            <Grid container spacing={4} sx={{height: "calc(100vh - 110px)"}}>
+                <Grid size={6} sx={{height: "30vh", maxHeight: "30vh"}}>
+                    <Paper sx={{p: 3, mb: 2, bgcolor: '#f5f5f5', height: '100%', overflow: 'hidden'}}>
+                        <Typography>
+                            <h1 style={{marginTop: "0"}}>Results</h1>
+                            <h2>Final balance: {formatCurrency(balance)}</h2>
+                            <h3>Total decisions: {totalInvestments}</h3>
+                            <h3>Shorted: {shortInvestments}</h3>
+                            <h3>Skipped opportunities: {skippedInvestments}</h3>
+                        </Typography>
+                    </Paper>
+                </Grid>
 
-            <div className="investment-summary-stats">
-                <div className="summary-stat">
-                    <span className="stat-label">{`Total Decisions: `}</span>
-                    <span className="stat-value">{totalInvestments}</span>
-                </div>
-                <div className="summary-stat">
-                    <span className="stat-label">{`Shorted: `}</span>
-                    <span className="stat-value">{shortInvestments}</span>
-                </div>
-                <div className="summary-stat">
-                    <span className="stat-label">{`Skipped Opportunities: `}</span>
-                    <span className="stat-value">{skippedInvestments}</span>
-                </div>
-            </div>
+                <Grid size={6} sx={{height: "30vh", maxHeight: "30vh"}}>
+                    <Paper sx={{p: 3, mb: 2, bgcolor: '#f5f5f5', height: '100%', overflow: "auto"}}>
+                            <InvestmentCards choicesToProcess={completedInvestments} areFinalized={true}/>
+                            <InvestmentCards choicesToProcess={liveInvestments} areFinalized={true}
+                                             liveAtGameOver={true}/>
 
-            <div className="investments-container">
-                <InvestmentList
-                    title="Completed Investments"
-                    investments={completedInvestments}
-                    isCompleted={true}
-                />
+                    </Paper>
+                </Grid>
 
-                {liveInvestments.length > 0 && (
-                    <InvestmentList
-                        title="Live Investments Cashed Out at End"
-                        investments={liveInvestments}
-                        isCompleted={false}
-                    />
-                )}
-            </div>
-        </div>
+                <Grid size={12} sx={{marginTop: 5,}}>
+                    {renderLineChart(balanceHistory)}
+                </Grid>
+            </Grid>
+        </Container>
     );
 };
 

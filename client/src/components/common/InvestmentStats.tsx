@@ -1,5 +1,5 @@
 ﻿import React from "react";
-import { Grid, Typography, Paper, Box } from "@mui/material";
+import { Grid, Paper, Box } from "@mui/material";
 import { renderLineChart } from "../game/LineChart.tsx";
 import { InvestmentCards } from "../game/InvestmentCards.tsx";
 import { Investment, InvestmentHistory } from "../../@types/types.ts";
@@ -29,11 +29,10 @@ export const InvestmentStats: React.FC<InvestmentStatsProps> = ({
                     flexDirection: "column",
                     overflow: "hidden"
                 }}>
-                    <Typography variant="subtitle1" fontWeight="medium">Completed Investments</Typography>
                     <Box sx={{
                         flex: 1,
                         overflow: "auto",
-                        maxHeight: "calc(100% - 30px)"
+                        maxHeight: "100%"
                     }}>
                         <InvestmentCards choicesToProcess={completedUserInvestments} areFinalized={true} />
                     </Box>
@@ -58,13 +57,12 @@ export const InvestmentStats: React.FC<InvestmentStatsProps> = ({
                     maxHeight: "calc(100vh - 300px)",
                     display: "flex",
                     flexDirection: "column",
-                    overflow: "hidden"
+                    overflow: "hidden",
                 }}>
-                    <Typography variant="subtitle1" fontWeight="medium">Active Investments</Typography>
                     <Box sx={{
                         flex: 1,
                         overflow: "auto",
-                        maxHeight: "calc(100% - 30px)"
+                        maxHeight: "100%",
                     }}>
                         <InvestmentCards choicesToProcess={liveUserInvestments} areFinalized={false} />
                     </Box>

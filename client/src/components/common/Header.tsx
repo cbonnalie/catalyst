@@ -12,6 +12,7 @@ const LOGO = "client/src/assets/logo.png";
 
 export const Header: React.FC = () => {
     return (
+        <header className="App-header">
             <AppBar position="static" color="transparent" elevation={1}
                     sx={{minWidth: '100%'}}
             >
@@ -58,6 +59,7 @@ export const Header: React.FC = () => {
                     </Box>
                 </Toolbar>
             </AppBar>
+        </header>
     );
 }
 

@@ -95,6 +95,7 @@ const Game: React.FC = () => {
                     liveUserInvestments={liveUserInvestments}
                     finalizeGame={finalizeGame}
                     finalizedGame={finalizedGame}
+                    balanceHistory={balanceHistory}
                 />
             ) : (
                 <ActiveGamePhase

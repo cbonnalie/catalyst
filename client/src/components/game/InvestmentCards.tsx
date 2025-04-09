@@ -8,6 +8,7 @@ import {calculateInvestmentGain, formatCurrency, formatPercentage} from '../../u
 interface InvestmentCardsProps {
     choicesToProcess: Investment[];
     areFinalized: boolean;
+    liveAtGameOver?: boolean;
 }
 
 /**
@@ -16,7 +17,8 @@ interface InvestmentCardsProps {
 export const InvestmentCards: React.FC<InvestmentCardsProps> = (
     {
         choicesToProcess,
-        areFinalized
+        areFinalized,
+        liveAtGameOver,
     }) => {
     /**
      * Renders the details of an investment based on its type and status
@@ -53,7 +55,16 @@ export const InvestmentCards: React.FC<InvestmentCardsProps> = (
 
     return (
         <div className="results-container">
-            <h3>{areFinalized ? "Completed Investments" : "Current Investments"}</h3>
+
+            <h2>
+                {
+                    liveAtGameOver
+                        ? "Live Investments Cashed Out"
+                        : areFinalized
+                            ? "Completed Investments"
+                            : "Current Investments"
+                }
+            </h2>
 
             {choicesToProcess.length === 0 ? (
                 <p className="no-investments">No investments yet</p>
