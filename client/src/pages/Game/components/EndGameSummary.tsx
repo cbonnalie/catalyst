@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Investment, InvestmentHistory } from "../../../types/types";
 import { formatCurrency } from "../../../utils/investmentUtils";
 import {
