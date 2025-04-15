@@ -6,6 +6,7 @@
   "proxy": "http://localhost:3000",
   "scripts": {
     "dev": "vite",
+    "postinstall": "tsc",
     "server": "nodemon --exec ts-node server/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
